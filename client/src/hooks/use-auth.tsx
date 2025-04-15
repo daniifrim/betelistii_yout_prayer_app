@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -7,6 +7,8 @@ import {
 import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { signInWithGoogle, auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 type AuthContextType = {
   user: SelectUser | null;
@@ -15,6 +17,7 @@ type AuthContextType = {
   loginMutation: UseMutationResult<SelectUser, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
   registerMutation: UseMutationResult<SelectUser, Error, InsertUser>;
+  googleSignInMutation: UseMutationResult<SelectUser, Error, void>;
 };
 
 type LoginData = Pick<InsertUser, "username" | "password">;
@@ -92,6 +95,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
   });
+  
+  const googleSignInMutation = useMutation({
+    mutationFn: async () => {
+      // Call Firebase to sign in with Google
+      const result = await signInWithGoogle();
+      
+      if (!result.success || !result.user) {
+        throw new Error("Google sign-in failed");
+      }
+      
+      // Now send the ID token to our backend to verify and log in/register
+      const idToken = await result.user.getIdToken();
+      const res = await apiRequest("POST", "/api/auth/google", { idToken });
+      return await res.json();
+    },
+    onSuccess: (user: SelectUser) => {
+      queryClient.setQueryData(["/api/user"], user);
+      toast({
+        title: "Google sign-in successful",
+        description: `Welcome, ${user.name}!`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Google sign-in failed",
+        description: error.message || "An error occurred during Google sign-in",
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <AuthContext.Provider
@@ -102,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginMutation,
         logoutMutation,
         registerMutation,
+        googleSignInMutation,
       }}
     >
       {children}

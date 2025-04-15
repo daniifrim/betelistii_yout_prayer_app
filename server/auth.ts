@@ -30,9 +30,9 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 // Function to verify Firebase token
-async function verifyFirebaseToken(idToken: string): Promise<admin.auth.DecodedIdToken | null> {
+async function verifyFirebaseToken(idToken: string): Promise<any | null> {
   try {
-    return await admin.auth().verifyIdToken(idToken);
+    return await firebaseAuth.verifyIdToken(idToken);
   } catch (error) {
     console.error("Error verifying Firebase token:", error);
     return null;
