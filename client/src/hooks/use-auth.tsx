@@ -118,9 +118,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
+      console.error("Google sign-in error details:", error);
+      let errorMessage = error.message || "An error occurred during Google sign-in";
+      
+      // Check if it's a Firebase auth configuration error
+      if (error.message && error.message.includes("configuration-not-found")) {
+        errorMessage = "Firebase configuration error. Please verify that Google Sign-in is enabled in Firebase console and your app domain is added to authorized domains.";
+      }
+      
       toast({
         title: "Google sign-in failed",
-        description: error.message || "An error occurred during Google sign-in",
+        description: errorMessage,
         variant: "destructive",
       });
     },
