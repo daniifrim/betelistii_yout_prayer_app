@@ -10,6 +10,10 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// Add Replit domain to the list of domains to check for authentication
+const replitDomain = window.location.hostname;
+console.log("Current domain for authentication:", replitDomain);
+
 // For debugging
 console.log("Firebase config (without sensitive data):", {
   authDomain: firebaseConfig.authDomain,
@@ -39,7 +43,7 @@ export const signInWithGoogle = async () => {
       user: result.user,
       success: true,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error signing in with Google", error);
     // Provide more detailed error information
     let errorMessage = "Unknown error occurred";
@@ -59,7 +63,7 @@ export const signInWithGoogle = async () => {
       user: null,
       success: false,
       error: {
-        ...error,
+        code: error.code || 'unknown-error',
         message: errorMessage
       },
     };
@@ -70,11 +74,14 @@ export const signOutUser = async () => {
   try {
     await signOut(auth);
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error signing out", error);
     return {
       success: false,
-      error,
+      error: {
+        code: error.code || 'unknown-error',
+        message: error.message || 'An error occurred during sign out'
+      },
     };
   }
 };
