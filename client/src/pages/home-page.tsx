@@ -1,0 +1,46 @@
+import { useAuth } from "@/hooks/use-auth";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
+import QuickStats from "@/components/dashboard/quick-stats";
+import TeamProgress from "@/components/dashboard/team-progress";
+import TodaysPrayer from "@/components/dashboard/todays-prayer";
+import { useQuery } from "@tanstack/react-query";
+
+export default function HomePage() {
+  const { user } = useAuth();
+  
+  const { data: stats } = useQuery({
+    queryKey: ["/api/stats/me"],
+  });
+  
+  const { data: teamStats } = useQuery({
+    queryKey: ["/api/stats/team"],
+  });
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      
+      <main className="flex-grow">
+        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Welcome back, {user?.name.split(' ')[0]}!
+            </h1>
+            <p className="text-gray-600">
+              Track your prayer journey and support our youth group together.
+            </p>
+          </div>
+          
+          {stats && <QuickStats stats={stats} />}
+          
+          <TodaysPrayer />
+          
+          {teamStats && <TeamProgress teamData={teamStats.teamProgress} />}
+        </div>
+      </main>
+      
+      <Footer />
+    </div>
+  );
+}
