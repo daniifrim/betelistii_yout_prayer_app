@@ -6,7 +6,7 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
-import admin from "./firebase-admin";
+import { auth as firebaseAuth } from "./firebase-admin";
 
 declare global {
   namespace Express {
@@ -27,6 +27,16 @@ async function comparePasswords(supplied: string, stored: string) {
   const hashedBuf = Buffer.from(hashed, "hex");
   const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
   return timingSafeEqual(hashedBuf, suppliedBuf);
+}
+
+// Function to verify Firebase token
+async function verifyFirebaseToken(idToken: string): Promise<admin.auth.DecodedIdToken | null> {
+  try {
+    return await admin.auth().verifyIdToken(idToken);
+  } catch (error) {
+    console.error("Error verifying Firebase token:", error);
+    return null;
+  }
 }
 
 export function setupAuth(app: Express) {
@@ -62,6 +72,7 @@ export function setupAuth(app: Express) {
     done(null, user);
   });
 
+  // Traditional registration
   app.post("/api/register", async (req, res, next) => {
     const existingUser = await storage.getUserByUsername(req.body.username);
     if (existingUser) {
@@ -79,8 +90,61 @@ export function setupAuth(app: Express) {
     });
   });
 
+  // Traditional login
   app.post("/api/login", passport.authenticate("local"), (req, res) => {
     res.status(200).json(req.user);
+  });
+
+  // Firebase Google authentication
+  app.post("/api/auth/google", async (req, res, next) => {
+    try {
+      const { idToken } = req.body;
+      
+      if (!idToken) {
+        return res.status(400).json({ message: "No ID token provided" });
+      }
+
+      // Verify the Firebase token
+      const decodedToken = await verifyFirebaseToken(idToken);
+      if (!decodedToken) {
+        return res.status(401).json({ message: "Invalid Firebase token" });
+      }
+
+      // Get the user's info from the token
+      const { uid, email, name } = decodedToken;
+      
+      // Check if the user exists in our database by Firebase UID
+      let user = await storage.getUserByFirebaseUid(uid);
+      
+      if (!user) {
+        // User doesn't exist in our system yet, create a new account
+        // Generate a random password (they'll use Google auth anyway)
+        const randomPassword = Math.random().toString(36).slice(-8);
+        const hashedPassword = await hashPassword(randomPassword);
+        
+        // Create a username from the email (remove @ and domain)
+        const username = email?.split('@')[0] || `user_${Date.now()}`;
+        
+        // Create the user in our database
+        user = await storage.createUser({
+          username,
+          email: email || '',
+          name: name || username,
+          password: hashedPassword,
+          firebaseUid: uid,
+          isAdmin: false
+        });
+      }
+
+      // Log the user in
+      req.login(user, (err) => {
+        if (err) return next(err);
+        res.status(200).json(user);
+      });
+    } catch (error) {
+      console.error("Google auth error:", error);
+      res.status(500).json({ message: "Authentication failed" });
+    }
   });
 
   app.post("/api/logout", (req, res, next) => {

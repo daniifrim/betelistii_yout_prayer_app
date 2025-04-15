@@ -1,10 +1,11 @@
-import * as admin from 'firebase-admin';
+import { initializeApp, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 
 // Initialize the Firebase Admin SDK
-if (!admin.apps.length) {
-  admin.initializeApp({
-    projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-  });
-}
+const app = initializeApp({
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+});
 
-export default admin;
+const auth = getAuth(app);
+
+export { auth };
