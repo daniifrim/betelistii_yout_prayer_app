@@ -25,13 +25,13 @@ export interface IStorage {
   
   getAllPrayers(): Promise<Prayer[]>;
   
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Type as 'any' to avoid session typing issues
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private prayers: Map<number, Prayer>;
-  sessionStore: session.SessionStore;
+  sessionStore: any;
   userCurrentId: number;
   prayerCurrentId: number;
 
@@ -57,7 +57,13 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userCurrentId++;
-    const user: User = { ...insertUser, id };
+    // Ensure default values are set for required fields
+    const user: User = { 
+      ...insertUser, 
+      id,
+      isAdmin: insertUser.isAdmin ?? false, 
+      firebaseUid: insertUser.firebaseUid ?? null
+    };
     this.users.set(id, user);
     return user;
   }
@@ -97,7 +103,13 @@ export class MemStorage implements IStorage {
   
   async createPrayer(insertPrayer: InsertPrayer): Promise<Prayer> {
     const id = this.prayerCurrentId++;
-    const prayer: Prayer = { ...insertPrayer, id };
+    // Ensure default values are set for required fields
+    const prayer: Prayer = { 
+      ...insertPrayer, 
+      id,
+      completed: insertPrayer.completed ?? true,
+      notes: insertPrayer.notes ?? null
+    };
     this.prayers.set(id, prayer);
     return prayer;
   }
@@ -121,7 +133,7 @@ export class MemStorage implements IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: any;
 
   constructor() {
     this.sessionStore = new PostgresSessionStore({
