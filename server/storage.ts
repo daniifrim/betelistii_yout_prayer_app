@@ -145,19 +145,24 @@ export class DatabaseStorage implements IStorage {
       userId: prayers.userId,
       date: prayers.date,
       completed: prayers.completed,
-      notes: prayers.notes
+      notes: prayers.notes,
+      startTime: prayers.startTime,
+      endTime: prayers.endTime,
+      duration: prayers.duration
     }).from(prayers).where(eq(prayers.id, id));
     return prayer;
   }
   
   async getPrayersByUserId(userId: number): Promise<Prayer[]> {
-    // Seleccionar solo las columnas que existen actualmente en la base de datos
     return await db.select({
       id: prayers.id,
       userId: prayers.userId,
       date: prayers.date,
       completed: prayers.completed,
-      notes: prayers.notes
+      notes: prayers.notes,
+      startTime: prayers.startTime,
+      endTime: prayers.endTime,
+      duration: prayers.duration
     }).from(prayers).where(eq(prayers.userId, userId));
   }
   
@@ -167,7 +172,10 @@ export class DatabaseStorage implements IStorage {
       userId: prayers.userId,
       date: prayers.date,
       completed: prayers.completed,
-      notes: prayers.notes
+      notes: prayers.notes,
+      startTime: prayers.startTime,
+      endTime: prayers.endTime,
+      duration: prayers.duration
     }).from(prayers)
       .where(and(
         eq(prayers.userId, userId),
@@ -202,7 +210,10 @@ export class DatabaseStorage implements IStorage {
       userId: prayers.userId,
       date: prayers.date,
       completed: prayers.completed,
-      notes: prayers.notes
+      notes: prayers.notes,
+      startTime: prayers.startTime,
+      endTime: prayers.endTime,
+      duration: prayers.duration
     }).from(prayers);
   }
 

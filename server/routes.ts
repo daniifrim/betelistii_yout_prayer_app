@@ -76,32 +76,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(updatedPrayer);
   });
 
-  // Toggle today's prayer (mark completed or not)
+  // Toggle today's prayer (mark completed or not) with optional timing data
   app.post("/api/prayers/today", ensureAuthenticated, async (req, res) => {
     const userId = req.user!.id;
     const today = format(new Date(), 'yyyy-MM-dd');
     
+    // Extraer datos de temporización si están presentes
+    const { startTime, endTime, duration } = req.body;
+    
     const existingPrayer = await storage.getPrayerByUserIdAndDate(userId, today);
     
     if (existingPrayer) {
-      // Toggle completed status
-      const updatedPrayer = await storage.updatePrayer(existingPrayer.id, {
-        completed: !existingPrayer.completed
-      });
-      return res.json(updatedPrayer);
+      // Si hay datos de tiempo, actualizar con esos datos
+      if (startTime && endTime && duration) {
+        const updatedPrayer = await storage.updatePrayer(existingPrayer.id, {
+          completed: true, // Siempre marcar como completada si hay datos de tiempo
+          startTime: new Date(startTime),
+          endTime: new Date(endTime),
+          duration
+        });
+        return res.json(updatedPrayer);
+      } else {
+        // Si no hay datos de tiempo, simplemente alternar el estado
+        const updatedPrayer = await storage.updatePrayer(existingPrayer.id, {
+          completed: !existingPrayer.completed
+        });
+        return res.json(updatedPrayer);
+      }
     } else {
-      // Create new prayer for today
-      const newPrayer = await storage.createPrayer({
+      // Crear nueva oración para hoy
+      const prayerData: any = {
         userId,
         date: today,
         completed: true,
         notes: req.body.notes || ""
-      });
+      };
+      
+      // Añadir datos de tiempo si están presentes
+      if (startTime && endTime && duration) {
+        prayerData.startTime = new Date(startTime);
+        prayerData.endTime = new Date(endTime);
+        prayerData.duration = duration;
+      }
+      
+      const newPrayer = await storage.createPrayer(prayerData);
       return res.status(201).json(newPrayer);
     }
   });
   
-  // Toggle prayer for a specific date (mark completed or not)
+  // Toggle prayer for a specific date (mark completed or not) with optional timing data
   app.post("/api/prayers/date/:date", ensureAuthenticated, async (req, res) => {
     const userId = req.user!.id;
     const date = req.params.date;
@@ -120,22 +143,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(400).json({ message: "Cannot update prayer status for future dates" });
     }
     
+    // Extraer datos de temporización si están presentes
+    const { startTime, endTime, duration } = req.body;
+    
     const existingPrayer = await storage.getPrayerByUserIdAndDate(userId, date);
     
     if (existingPrayer) {
-      // Toggle completed status
-      const updatedPrayer = await storage.updatePrayer(existingPrayer.id, {
-        completed: !existingPrayer.completed
-      });
-      return res.json(updatedPrayer);
+      // Si hay datos de tiempo, actualizar con esos datos
+      if (startTime && endTime && duration) {
+        const updatedPrayer = await storage.updatePrayer(existingPrayer.id, {
+          completed: true, // Siempre marcar como completada si hay datos de tiempo
+          startTime: new Date(startTime),
+          endTime: new Date(endTime),
+          duration
+        });
+        return res.json(updatedPrayer);
+      } else {
+        // Si no hay datos de tiempo, simplemente alternar el estado
+        const updatedPrayer = await storage.updatePrayer(existingPrayer.id, {
+          completed: !existingPrayer.completed
+        });
+        return res.json(updatedPrayer);
+      }
     } else {
-      // Create new prayer for the specified date
-      const newPrayer = await storage.createPrayer({
+      // Crear nueva oración para la fecha especificada
+      const prayerData: any = {
         userId,
         date,
         completed: true,
         notes: req.body.notes || ""
-      });
+      };
+      
+      // Añadir datos de tiempo si están presentes
+      if (startTime && endTime && duration) {
+        prayerData.startTime = new Date(startTime);
+        prayerData.endTime = new Date(endTime);
+        prayerData.duration = duration;
+      }
+      
+      const newPrayer = await storage.createPrayer(prayerData);
       return res.status(201).json(newPrayer);
     }
   });
