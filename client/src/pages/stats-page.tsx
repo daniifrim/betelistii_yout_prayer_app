@@ -49,6 +49,7 @@ export default function StatsPage() {
       </main>
       
       <Footer />
+      <MobileNavbar />
     </div>
   );
 }

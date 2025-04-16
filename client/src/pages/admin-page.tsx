@@ -1,5 +1,6 @@
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import MobileNavbar from "@/components/layout/mobile-navbar";
 import UserManagement from "@/components/admin/user-management";
 import { useAuth } from "@/hooks/use-auth";
 import { Redirect } from "wouter";
@@ -25,6 +26,7 @@ export default function AdminPage() {
       </main>
       
       <Footer />
+      <MobileNavbar />
     </div>
   );
 }
