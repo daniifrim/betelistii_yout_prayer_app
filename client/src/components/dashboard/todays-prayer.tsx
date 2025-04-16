@@ -114,6 +114,20 @@ export default function PrayerCard({ selectedDate }: PrayerCardProps) {
       // Actualizar la cache
       const data = await res.json();
       updateCacheAndInvalidateQueries(data);
+      
+      // Registrar la actividad
+      const timeFormatted = formatElapsedTime(duration);
+      await apiRequest("POST", "/api/activities", {
+        type: "prayer",
+        content: `Completó un tiempo de oración de ${timeFormatted}.`,
+        relatedPrayerId: data.id
+      });
+      
+      // Actualizar activities feed
+      queryClient.invalidateQueries({
+        queryKey: ["/api/activities/recent"],
+        refetchType: "all",
+      });
     } catch (error) {
       console.error("Error al registrar tiempo de oración:", error);
     }
@@ -137,8 +151,28 @@ export default function PrayerCard({ selectedDate }: PrayerCardProps) {
       const res = await apiRequest("POST", endpoint, {});
       return await res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       updateCacheAndInvalidateQueries(data);
+      
+      // Registrar la actividad solo si se está marcando como completada (no al desmarcar)
+      if (data.completed) {
+        // Texto diferente dependiendo si es hoy u otro día
+        const dateText = isTodaySelected 
+          ? "hoy" 
+          : `el ${format(selectedDate, "d 'de' MMMM", { locale: es })}`;
+        
+        await apiRequest("POST", "/api/activities", {
+          type: "prayer",
+          content: `Marcó su oración como completada ${dateText}.`,
+          relatedPrayerId: data.id
+        });
+        
+        // Actualizar activities feed
+        queryClient.invalidateQueries({
+          queryKey: ["/api/activities/recent"],
+          refetchType: "all",
+        });
+      }
     },
     onError: (error) => {
       console.error("Error al cambiar estado de oración:", error);

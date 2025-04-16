@@ -336,6 +336,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Activities routes
+  // Get recent activities
+  app.get("/api/activities/recent", ensureAuthenticated, async (req, res) => {
+    const recentActivities = await storage.getRecentActivities(20); // Obtener las 20 actividades más recientes
+    res.json(recentActivities);
+  });
+  
+  // Create a new activity
+  app.post("/api/activities", ensureAuthenticated, async (req, res) => {
+    try {
+      const userId = req.user!.id;
+      const activity = await storage.createActivity({
+        userId,
+        type: req.body.type,
+        content: req.body.content,
+        relatedUserId: req.body.relatedUserId || null,
+        relatedPrayerId: req.body.relatedPrayerId || null,
+        relatedBadgeId: req.body.relatedBadgeId || null
+      });
+      
+      res.status(201).json(activity);
+    } catch (error) {
+      res.status(400).json({ message: "Error al crear la actividad" });
+    }
+  });
+  
+  // Get all users (basic info)
+  app.get("/api/users", ensureAuthenticated, async (req, res) => {
+    const users = await storage.getAllUsers();
+    // Remove password from response and other sensitive data
+    const sanitizedUsers = users.map(({ password, email, isAdmin, ...user }) => user);
+    res.json(sanitizedUsers);
+  });
+  
   // Admin routes
   app.get("/api/admin/users", ensureAdmin, async (req, res) => {
     const users = await storage.getAllUsers();
