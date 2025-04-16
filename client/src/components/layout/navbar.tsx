@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { Pause, LogOut, Menu, X } from "lucide-react";
+import { Pause, LogOut } from "lucide-react";
 import { Link } from "wouter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -11,12 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
 
 export default function Navbar() {
   const { user, logoutMutation } = useAuth();
   const [location] = useLocation();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logoutMutation.mutate();
@@ -28,10 +26,6 @@ export default function Navbar() {
       .map(part => part[0])
       .join('')
       .toUpperCase();
-  };
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
