@@ -7,7 +7,7 @@ import {
 import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { signInWithGoogle, auth } from "@/lib/firebase";
+import { signInWithGoogle, auth, handleAuthRedirect } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 type AuthContextType = {
@@ -98,41 +98,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const googleSignInMutation = useMutation({
     mutationFn: async () => {
-      // Call Firebase to sign in with Google
-      const result = await signInWithGoogle();
+      // Call Firebase to initiate Google sign-in with redirect
+      await signInWithGoogle();
       
-      if (!result.success || !result.user) {
-        throw new Error("Google sign-in failed");
-      }
-      
-      // Now send the ID token to our backend to verify and log in/register
-      const idToken = await result.user.getIdToken();
-      const res = await apiRequest("POST", "/api/auth/google", { idToken });
-      return await res.json();
-    },
-    onSuccess: (user: SelectUser) => {
-      queryClient.setQueryData(["/api/user"], user);
-      toast({
-        title: "Google sign-in successful",
-        description: `Welcome, ${user.name}!`,
-      });
+      // This function will not complete normally since the page will be redirected
+      // We're only throwing this to prevent the "success" handler from running
+      throw new Error("Redirecting to Google sign-in");
     },
     onError: (error: Error) => {
-      console.error("Google sign-in error details:", error);
-      let errorMessage = error.message || "An error occurred during Google sign-in";
-      
-      // Check if it's a Firebase auth configuration error
-      if (error.message && error.message.includes("configuration-not-found")) {
-        errorMessage = "Firebase configuration error. Please verify that Google Sign-in is enabled in Firebase console and your app domain is added to authorized domains.";
+      // Only show error if it's not the redirect error we threw
+      if (error.message !== "Redirecting to Google sign-in") {
+        console.error("Google sign-in redirect error:", error);
+        
+        toast({
+          title: "Google sign-in failed",
+          description: error.message || "Failed to redirect to Google sign-in",
+          variant: "destructive",
+        });
       }
-      
-      toast({
-        title: "Google sign-in failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
     },
   });
+  
+  // Handle Firebase auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
+          // User is signed in with Firebase, now authenticate with our backend
+          const idToken = await firebaseUser.getIdToken();
+          
+          try {
+            const res = await apiRequest("POST", "/api/auth/google", { idToken });
+            const userData = await res.json();
+            
+            // Set the user data in the query cache
+            queryClient.setQueryData(["/api/user"], userData);
+            
+            toast({
+              title: "Google sign-in successful",
+              description: `Welcome, ${userData.name || firebaseUser.displayName}!`,
+            });
+          } catch (err: any) {
+            console.error("Backend authentication error:", err);
+            toast({
+              title: "Authentication error",
+              description: "Failed to authenticate with the server",
+              variant: "destructive",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Auth state change error:", error);
+      }
+    });
+    
+    return () => unsubscribe();
+  }, [toast]);
 
   return (
     <AuthContext.Provider

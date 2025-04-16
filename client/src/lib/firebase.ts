@@ -12,7 +12,9 @@ const firebaseConfig = {
 
 // Add Replit domain to the list of domains to check for authentication
 const replitDomain = window.location.hostname;
+const currentUrl = window.location.origin;
 console.log("Current domain for authentication:", replitDomain);
+console.log("Current URL:", currentUrl);
 
 // For debugging
 console.log("Firebase config (without sensitive data):", {
@@ -85,7 +87,7 @@ export const handleAuthRedirect = async () => {
     
     let errorMessage = "Failed to complete Google authentication";
     if (error.code === 'auth/unauthorized-domain') {
-      errorMessage = "The domain is not authorized for Google authentication in Firebase console";
+      errorMessage = `The domain "${window.location.origin}" is not authorized for Google authentication. Please add "${window.location.hostname}" to your Firebase console's authorized domains list.`;
     }
     
     return {
