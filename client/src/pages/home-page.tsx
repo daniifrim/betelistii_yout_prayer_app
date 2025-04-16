@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import MobileNavbar from "@/components/layout/mobile-navbar";
 import QuickStats from "@/components/dashboard/quick-stats";
 import TeamProgress from "@/components/dashboard/team-progress";
 import TodaysPrayer from "@/components/dashboard/todays-prayer";
@@ -57,6 +58,7 @@ export default function HomePage() {
       </main>
       
       <Footer />
+      <MobileNavbar />
     </div>
   );
 }

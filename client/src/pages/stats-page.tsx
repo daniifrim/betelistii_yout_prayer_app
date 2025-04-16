@@ -1,5 +1,6 @@
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import MobileNavbar from "@/components/layout/mobile-navbar";
 import StatsOverview from "@/components/stats/stats-overview";
 import { useQuery } from "@tanstack/react-query";
 

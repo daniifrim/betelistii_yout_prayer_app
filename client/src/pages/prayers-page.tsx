@@ -1,11 +1,13 @@
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import MobileNavbar from "@/components/layout/mobile-navbar";
 import PrayerCalendar from "@/components/prayers/prayer-calendar";
 import PrayerForm from "@/components/prayers/prayer-form";
 import { useQuery } from "@tanstack/react-query";
+import { Prayer } from "@shared/schema";
 
 export default function PrayersPage() {
-  const { data: prayers } = useQuery({
+  const { data: prayers } = useQuery<Prayer[]>({
     queryKey: ["/api/prayers"],
   });
 
@@ -24,6 +26,7 @@ export default function PrayersPage() {
       </main>
       
       <Footer />
+      <MobileNavbar />
     </div>
   );
 }
