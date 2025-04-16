@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, Loader2, BookMarked } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function TodaysPrayer() {
   const queryClient = useQueryClient();
@@ -38,33 +37,44 @@ export default function TodaysPrayer() {
   
   const isCompleted = todayPrayer?.completed;
   
+  if (isLoading) {
+    return (
+      <Card className="mb-8 border-2 border-dashed border-primary/30">
+        <CardContent className="py-8 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+  
   return (
-    <div className="bg-white shadow rounded-lg mb-8">
-      <div className="px-4 py-5 sm:p-6">
-        <h3 className="text-lg leading-6 font-medium text-gray-900">Oración de Hoy</h3>
-        <div className="mt-5">
-          {isLoading ? (
-            <div className="flex items-center space-x-2">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              <span>Cargando...</span>
-            </div>
+    <Card className={`mb-8 border-2 ${isCompleted ? 'border-green-500/50' : 'border-primary/50'}`}>
+      <CardContent className="flex flex-col items-center justify-center p-8">
+        <h2 className="text-xl font-bold mb-6 text-center">
+          ¿Has orado hoy?
+        </h2>
+        
+        <Button
+          onClick={handleTogglePrayer}
+          disabled={togglePrayerMutation.isPending}
+          variant={isCompleted ? "outline" : "default"}
+          className={`py-6 px-8 rounded-xl text-lg w-full max-w-md ${
+            isCompleted 
+              ? "border-2 border-green-500 text-green-600 hover:bg-green-50" 
+              : "bg-primary hover:bg-primary/90"
+          }`}
+          size="lg"
+        >
+          {togglePrayerMutation.isPending ? (
+            <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+          ) : isCompleted ? (
+            <Check className="mr-3 h-6 w-6" />
           ) : (
-            <Button
-              onClick={handleTogglePrayer}
-              disabled={togglePrayerMutation.isPending}
-              variant={isCompleted ? "outline" : "default"}
-              className={`${isCompleted ? "border-green-500 text-green-500 hover:bg-green-50" : ""}`}
-            >
-              {togglePrayerMutation.isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : isCompleted ? (
-                <Check className="mr-2 h-4 w-4" />
-              ) : null}
-              {isCompleted ? "Completada" : "Marcar como Completada"}
-            </Button>
+            <BookMarked className="mr-3 h-6 w-6" />
           )}
-        </div>
-      </div>
-    </div>
+          {isCompleted ? "¡He orado hoy!" : "He orado hoy"}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
