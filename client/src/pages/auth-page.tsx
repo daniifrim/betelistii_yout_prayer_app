@@ -19,9 +19,9 @@ export default function AuthPage() {
         <div className="w-full max-w-md">
           <Card className="shadow-lg">
             <CardHeader className="text-center">
-              <CardTitle className="text-3xl font-bold">Prayer Tracker</CardTitle>
+              <CardTitle className="text-3xl font-bold">Betelistii Prayer Tracker</CardTitle>
               <CardDescription className="text-lg mt-2">
-                Sign in to track your prayers and connect with your community
+                Inicia sesión para seguir tus oraciones y conectarte con tu comunidad
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8 p-8">
@@ -32,7 +32,7 @@ export default function AuthPage() {
                   className="w-32 h-32 opacity-80"
                 />
                 <p className="text-center text-gray-600">
-                  Track your daily prayers, see your progress, and stay connected with your youth group
+                  Registra tus oraciones diarias, ve tu progreso y mantente conectado con tu grupo juvenil
                 </p>
               </div>
               
@@ -71,11 +71,11 @@ export default function AuthPage() {
                     />
                   </svg>
                 )}
-                Sign in with Google
+                Iniciar sesión con Google
               </Button>
             </CardContent>
             <CardFooter className="justify-center text-sm text-gray-500">
-              By signing in, you agree to our Terms of Service and Privacy Policy
+              Al iniciar sesión, aceptas nuestros Términos de Servicio y Política de Privacidad
             </CardFooter>
           </Card>
         </div>
@@ -86,13 +86,13 @@ export default function AuthPage() {
           <div className="mb-8 flex justify-center">
             <Pause className="h-16 w-16" />
           </div>
-          <h1 className="text-3xl font-bold mb-4">Prayer Tracker</h1>
+          <h1 className="text-3xl font-bold mb-4">Betelistii Prayer Tracker</h1>
           <p className="text-lg mb-6">
-            Welcome to our prayer tracking application. Track your daily prayers, see your progress, and 
-            stay connected with your prayer community.
+            Bienvenido a nuestra aplicación de seguimiento de oraciones. Registra tus oraciones diarias, 
+            observa tu progreso y mantente conectado con tu comunidad de oración.
           </p>
           <p className="text-lg">
-            Together, we can support our youth group through consistent prayer and accountability.
+            Juntos, podemos apoyar a nuestro grupo juvenil a través de la oración consistente y la responsabilidad.
           </p>
         </div>
       </div>
