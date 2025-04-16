@@ -45,42 +45,38 @@ export default function Navbar() {
             </div>
             
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link href="/">
-                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
+              <Link href="/"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
                   location === "/" 
                     ? "border-primary text-primary" 
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}>
                   Inicio
-                </a>
               </Link>
-              <Link href="/prayers">
-                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
+              <Link href="/prayers"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
                   location === "/prayers" 
                     ? "border-primary text-primary" 
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}>
                   Oraciones Diarias
-                </a>
               </Link>
-              <Link href="/stats">
-                <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
+              <Link href="/stats"
+                className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
                   location === "/stats" 
                     ? "border-primary text-primary" 
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}>
                   Estadísticas
-                </a>
               </Link>
               {user?.isAdmin && (
-                <Link href="/admin">
-                  <a className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
+                <Link href="/admin"
+                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium h-16 ${
                     location === "/admin" 
                       ? "border-primary text-primary" 
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}>
                     Administrador
-                  </a>
                 </Link>
               )}
             </div>
@@ -129,54 +125,46 @@ export default function Navbar() {
       {isMenuOpen && (
         <div className="sm:hidden">
           <div className="pt-2 pb-3 space-y-1">
-            <Link href="/">
-              <a
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  location === "/"
-                    ? "border-primary text-primary bg-primary/10"
-                    : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Inicio
-              </a>
+            <Link href="/"
+              className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                location === "/"
+                  ? "border-primary text-primary bg-primary/10"
+                  : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Inicio
             </Link>
-            <Link href="/prayers">
-              <a
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  location === "/prayers"
-                    ? "border-primary text-primary bg-primary/10"
-                    : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Oraciones Diarias
-              </a>
+            <Link href="/prayers"
+              className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                location === "/prayers"
+                  ? "border-primary text-primary bg-primary/10"
+                  : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Oraciones Diarias
             </Link>
-            <Link href="/stats">
-              <a
-                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                  location === "/stats"
-                    ? "border-primary text-primary bg-primary/10"
-                    : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Estadísticas
-              </a>
+            <Link href="/stats"
+              className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                location === "/stats"
+                  ? "border-primary text-primary bg-primary/10"
+                  : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+              }`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Estadísticas
             </Link>
             {user?.isAdmin && (
-              <Link href="/admin">
-                <a
-                  className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
-                    location === "/admin"
-                      ? "border-primary text-primary bg-primary/10"
-                      : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Administrador
-                </a>
+              <Link href="/admin"
+                className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
+                  location === "/admin"
+                    ? "border-primary text-primary bg-primary/10"
+                    : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Administrador
               </Link>
             )}
 
