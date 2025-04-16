@@ -1,14 +1,25 @@
-import { users, type User, type InsertUser, prayers, type Prayer, type InsertPrayer, quotes, type Quote, type InsertQuote } from "@shared/schema";
+import { 
+  users, type User, type InsertUser, 
+  prayers, type Prayer, type InsertPrayer, 
+  quotes, type Quote, type InsertQuote,
+  activities, type Activity, type InsertActivity,
+  badges, type Badge, type InsertBadge,
+  userBadges, type UserBadge, type InsertUserBadge,
+  prayerIntentions, type PrayerIntention, type InsertPrayerIntention,
+  intentionParticipants, type IntentionParticipant, type InsertIntentionParticipant,
+  encouragements, type Encouragement, type InsertEncouragement
+} from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc, asc } from "drizzle-orm";
 import { db, pool } from "./db";
 
 const MemoryStore = createMemoryStore(session);
 const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
+  // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByFirebaseUid(firebaseUid: string): Promise<User | undefined>;
@@ -17,174 +28,64 @@ export interface IStorage {
   updateUser(id: number, user: Partial<User>): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
   
+  // Prayer methods
   getPrayer(id: number): Promise<Prayer | undefined>;
   getPrayersByUserId(userId: number): Promise<Prayer[]>;
   getPrayerByUserIdAndDate(userId: number, date: string): Promise<Prayer | undefined>;
   createPrayer(prayer: InsertPrayer): Promise<Prayer>;
   updatePrayer(id: number, prayer: Partial<Prayer>): Promise<Prayer | undefined>;
   deletePrayer(id: number): Promise<boolean>;
-  
   getAllPrayers(): Promise<Prayer[]>;
   
+  // Quote methods
   getQuoteByDayOfYear(dayOfYear: number): Promise<Quote | undefined>;
   getAllQuotes(): Promise<Quote[]>;
   createQuote(quote: InsertQuote): Promise<Quote>;
   updateQuote(id: number, quote: Partial<Quote>): Promise<Quote | undefined>;
   deleteQuote(id: number): Promise<boolean>;
   
+  // Activity methods
+  getActivity(id: number): Promise<Activity | undefined>;
+  getActivitiesByUserId(userId: number): Promise<Activity[]>;
+  getRecentActivities(limit: number): Promise<Activity[]>;
+  createActivity(activity: InsertActivity): Promise<Activity>;
+  deleteActivity(id: number): Promise<boolean>;
+  
+  // Badge methods
+  getBadge(id: number): Promise<Badge | undefined>;
+  getBadgeByType(type: string): Promise<Badge | undefined>;
+  getAllBadges(): Promise<Badge[]>;
+  createBadge(badge: InsertBadge): Promise<Badge>;
+  
+  // User badge methods
+  getUserBadge(id: number): Promise<UserBadge | undefined>;
+  getUserBadgesByUserId(userId: number): Promise<UserBadge[]>;
+  createUserBadge(userBadge: InsertUserBadge): Promise<UserBadge>;
+  updateUserBadge(id: number, userBadge: Partial<UserBadge>): Promise<UserBadge | undefined>;
+  
+  // Prayer intention methods
+  getPrayerIntention(id: number): Promise<PrayerIntention | undefined>;
+  getPrayerIntentionsByUserId(userId: number): Promise<PrayerIntention[]>;
+  getActivePrayerIntentions(): Promise<PrayerIntention[]>;
+  createPrayerIntention(intention: InsertPrayerIntention): Promise<PrayerIntention>;
+  updatePrayerIntention(id: number, intention: Partial<PrayerIntention>): Promise<PrayerIntention | undefined>;
+  deletePrayerIntention(id: number): Promise<boolean>;
+  
+  // Intention participant methods
+  getIntentionParticipant(id: number): Promise<IntentionParticipant | undefined>;
+  getIntentionParticipantsByIntentionId(intentionId: number): Promise<IntentionParticipant[]>;
+  createIntentionParticipant(participant: InsertIntentionParticipant): Promise<IntentionParticipant>;
+  deleteIntentionParticipant(id: number): Promise<boolean>;
+  
+  // Encouragement methods
+  getEncouragement(id: number): Promise<Encouragement | undefined>;
+  getEncouragementsSent(userId: number): Promise<Encouragement[]>;
+  getEncouragementReceived(userId: number): Promise<Encouragement[]>;
+  getUnreadEncouragements(userId: number): Promise<Encouragement[]>;
+  createEncouragement(encouragement: InsertEncouragement): Promise<Encouragement>;
+  markEncouragementAsRead(id: number): Promise<Encouragement | undefined>;
+  
   sessionStore: any; // Type as 'any' to avoid session typing issues
-}
-
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private prayers: Map<number, Prayer>;
-  private quotes: Map<number, Quote>;
-  sessionStore: any;
-  userCurrentId: number;
-  prayerCurrentId: number;
-  quoteCurrentId: number;
-
-  constructor() {
-    this.users = new Map();
-    this.prayers = new Map();
-    this.quotes = new Map();
-    this.userCurrentId = 1;
-    this.prayerCurrentId = 1;
-    this.quoteCurrentId = 1;
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
-    });
-  }
-
-  async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-  
-  async getUserByFirebaseUid(firebaseUid: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.firebaseUid === firebaseUid,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userCurrentId++;
-    // Ensure default values are set for required fields
-    const user: User = { 
-      ...insertUser, 
-      id,
-      isAdmin: insertUser.isAdmin ?? false, 
-      firebaseUid: insertUser.firebaseUid ?? null,
-      photoURL: insertUser.photoURL ?? null
-    };
-    this.users.set(id, user);
-    return user;
-  }
-  
-  async getAllUsers(): Promise<User[]> {
-    return Array.from(this.users.values());
-  }
-  
-  async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
-    const user = await this.getUser(id);
-    if (!user) return undefined;
-    
-    const updatedUser = { ...user, ...userData };
-    this.users.set(id, updatedUser);
-    return updatedUser;
-  }
-  
-  async deleteUser(id: number): Promise<boolean> {
-    return this.users.delete(id);
-  }
-  
-  async getPrayer(id: number): Promise<Prayer | undefined> {
-    return this.prayers.get(id);
-  }
-  
-  async getPrayersByUserId(userId: number): Promise<Prayer[]> {
-    return Array.from(this.prayers.values()).filter(
-      (prayer) => prayer.userId === userId,
-    );
-  }
-  
-  async getPrayerByUserIdAndDate(userId: number, date: string): Promise<Prayer | undefined> {
-    return Array.from(this.prayers.values()).find(
-      (prayer) => prayer.userId === userId && prayer.date === date,
-    );
-  }
-  
-  async createPrayer(insertPrayer: InsertPrayer): Promise<Prayer> {
-    const id = this.prayerCurrentId++;
-    // Ensure default values are set for required fields
-    const prayer: Prayer = { 
-      ...insertPrayer, 
-      id,
-      completed: insertPrayer.completed ?? true,
-      notes: insertPrayer.notes ?? null
-    };
-    this.prayers.set(id, prayer);
-    return prayer;
-  }
-  
-  async updatePrayer(id: number, prayerData: Partial<Prayer>): Promise<Prayer | undefined> {
-    const prayer = await this.getPrayer(id);
-    if (!prayer) return undefined;
-    
-    const updatedPrayer = { ...prayer, ...prayerData };
-    this.prayers.set(id, updatedPrayer);
-    return updatedPrayer;
-  }
-  
-  async deletePrayer(id: number): Promise<boolean> {
-    return this.prayers.delete(id);
-  }
-  
-  async getAllPrayers(): Promise<Prayer[]> {
-    return Array.from(this.prayers.values());
-  }
-
-  async getQuoteByDayOfYear(dayOfYear: number): Promise<Quote | undefined> {
-    return Array.from(this.quotes.values()).find(
-      (quote) => quote.dayOfYear === dayOfYear
-    );
-  }
-  
-  async getAllQuotes(): Promise<Quote[]> {
-    return Array.from(this.quotes.values());
-  }
-  
-  async createQuote(insertQuote: InsertQuote): Promise<Quote> {
-    const id = this.quoteCurrentId++;
-    const quote: Quote = {
-      id,
-      text: insertQuote.text,
-      text_en: insertQuote.text_en || null,
-      author: insertQuote.author,
-      source: insertQuote.source || null,
-      dayOfYear: insertQuote.dayOfYear
-    };
-    this.quotes.set(id, quote);
-    return quote;
-  }
-  
-  async updateQuote(id: number, quoteData: Partial<Quote>): Promise<Quote | undefined> {
-    const quote = this.quotes.get(id);
-    if (!quote) return undefined;
-    
-    const updatedQuote = { ...quote, ...quoteData };
-    this.quotes.set(id, updatedQuote);
-    return updatedQuote;
-  }
-  
-  async deleteQuote(id: number): Promise<boolean> {
-    return this.quotes.delete(id);
-  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -197,6 +98,7 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
+  // User methods
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
@@ -236,6 +138,7 @@ export class DatabaseStorage implements IStorage {
     return !!deleted;
   }
   
+  // Prayer methods
   async getPrayer(id: number): Promise<Prayer | undefined> {
     const [prayer] = await db.select().from(prayers).where(eq(prayers.id, id));
     return prayer;
@@ -278,6 +181,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(prayers);
   }
 
+  // Quote methods
   async getQuoteByDayOfYear(dayOfYear: number): Promise<Quote | undefined> {
     const [quote] = await db.select().from(quotes).where(eq(quotes.dayOfYear, dayOfYear));
     return quote;
@@ -306,7 +210,180 @@ export class DatabaseStorage implements IStorage {
       .returning();
     return !!deleted;
   }
+
+  // Activity methods
+  async getActivity(id: number): Promise<Activity | undefined> {
+    const [activity] = await db.select().from(activities).where(eq(activities.id, id));
+    return activity;
+  }
+
+  async getActivitiesByUserId(userId: number): Promise<Activity[]> {
+    return await db.select().from(activities).where(eq(activities.userId, userId))
+      .orderBy(desc(activities.timestamp));
+  }
+
+  async getRecentActivities(limit: number): Promise<Activity[]> {
+    return await db.select().from(activities)
+      .orderBy(desc(activities.timestamp))
+      .limit(limit);
+  }
+
+  async createActivity(activity: InsertActivity): Promise<Activity> {
+    const [newActivity] = await db.insert(activities).values(activity).returning();
+    return newActivity;
+  }
+
+  async deleteActivity(id: number): Promise<boolean> {
+    const [deleted] = await db.delete(activities)
+      .where(eq(activities.id, id))
+      .returning();
+    return !!deleted;
+  }
+
+  // Badge methods
+  async getBadge(id: number): Promise<Badge | undefined> {
+    const [badge] = await db.select().from(badges).where(eq(badges.id, id));
+    return badge;
+  }
+
+  async getBadgeByType(type: string): Promise<Badge | undefined> {
+    const [badge] = await db.select().from(badges).where(eq(badges.type, type));
+    return badge;
+  }
+
+  async getAllBadges(): Promise<Badge[]> {
+    return await db.select().from(badges);
+  }
+
+  async createBadge(badge: InsertBadge): Promise<Badge> {
+    const [newBadge] = await db.insert(badges).values(badge).returning();
+    return newBadge;
+  }
+
+  // User badge methods
+  async getUserBadge(id: number): Promise<UserBadge | undefined> {
+    const [userBadge] = await db.select().from(userBadges).where(eq(userBadges.id, id));
+    return userBadge;
+  }
+
+  async getUserBadgesByUserId(userId: number): Promise<UserBadge[]> {
+    return await db.select().from(userBadges).where(eq(userBadges.userId, userId));
+  }
+
+  async createUserBadge(userBadge: InsertUserBadge): Promise<UserBadge> {
+    const [newUserBadge] = await db.insert(userBadges).values(userBadge).returning();
+    return newUserBadge;
+  }
+
+  async updateUserBadge(id: number, userBadge: Partial<UserBadge>): Promise<UserBadge | undefined> {
+    const [updatedUserBadge] = await db.update(userBadges)
+      .set(userBadge)
+      .where(eq(userBadges.id, id))
+      .returning();
+    return updatedUserBadge;
+  }
+
+  // Prayer intention methods
+  async getPrayerIntention(id: number): Promise<PrayerIntention | undefined> {
+    const [intention] = await db.select().from(prayerIntentions).where(eq(prayerIntentions.id, id));
+    return intention;
+  }
+
+  async getPrayerIntentionsByUserId(userId: number): Promise<PrayerIntention[]> {
+    return await db.select().from(prayerIntentions).where(eq(prayerIntentions.userId, userId))
+      .orderBy(desc(prayerIntentions.createdAt));
+  }
+
+  async getActivePrayerIntentions(): Promise<PrayerIntention[]> {
+    return await db.select().from(prayerIntentions).where(eq(prayerIntentions.active, true))
+      .orderBy(desc(prayerIntentions.createdAt));
+  }
+
+  async createPrayerIntention(intention: InsertPrayerIntention): Promise<PrayerIntention> {
+    const [newIntention] = await db.insert(prayerIntentions).values(intention).returning();
+    return newIntention;
+  }
+
+  async updatePrayerIntention(id: number, intention: Partial<PrayerIntention>): Promise<PrayerIntention | undefined> {
+    const [updatedIntention] = await db.update(prayerIntentions)
+      .set(intention)
+      .where(eq(prayerIntentions.id, id))
+      .returning();
+    return updatedIntention;
+  }
+
+  async deletePrayerIntention(id: number): Promise<boolean> {
+    const [deleted] = await db.delete(prayerIntentions)
+      .where(eq(prayerIntentions.id, id))
+      .returning();
+    return !!deleted;
+  }
+
+  // Intention participant methods
+  async getIntentionParticipant(id: number): Promise<IntentionParticipant | undefined> {
+    const [participant] = await db.select().from(intentionParticipants).where(eq(intentionParticipants.id, id));
+    return participant;
+  }
+
+  async getIntentionParticipantsByIntentionId(intentionId: number): Promise<IntentionParticipant[]> {
+    return await db.select().from(intentionParticipants)
+      .where(eq(intentionParticipants.intentionId, intentionId));
+  }
+
+  async createIntentionParticipant(participant: InsertIntentionParticipant): Promise<IntentionParticipant> {
+    const [newParticipant] = await db.insert(intentionParticipants).values(participant).returning();
+    return newParticipant;
+  }
+
+  async deleteIntentionParticipant(id: number): Promise<boolean> {
+    const [deleted] = await db.delete(intentionParticipants)
+      .where(eq(intentionParticipants.id, id))
+      .returning();
+    return !!deleted;
+  }
+
+  // Encouragement methods
+  async getEncouragement(id: number): Promise<Encouragement | undefined> {
+    const [encouragement] = await db.select().from(encouragements).where(eq(encouragements.id, id));
+    return encouragement;
+  }
+
+  async getEncouragementsSent(userId: number): Promise<Encouragement[]> {
+    return await db.select().from(encouragements)
+      .where(eq(encouragements.fromUserId, userId))
+      .orderBy(desc(encouragements.timestamp));
+  }
+
+  async getEncouragementReceived(userId: number): Promise<Encouragement[]> {
+    return await db.select().from(encouragements)
+      .where(eq(encouragements.toUserId, userId))
+      .orderBy(desc(encouragements.timestamp));
+  }
+
+  async getUnreadEncouragements(userId: number): Promise<Encouragement[]> {
+    return await db.select().from(encouragements)
+      .where(and(
+        eq(encouragements.toUserId, userId),
+        eq(encouragements.read, false)
+      ))
+      .orderBy(desc(encouragements.timestamp));
+  }
+
+  async createEncouragement(encouragement: InsertEncouragement): Promise<Encouragement> {
+    const [newEncouragement] = await db.insert(encouragements).values(encouragement).returning();
+    return newEncouragement;
+  }
+
+  async markEncouragementAsRead(id: number): Promise<Encouragement | undefined> {
+    const [updatedEncouragement] = await db.update(encouragements)
+      .set({ read: true })
+      .where(eq(encouragements.id, id))
+      .returning();
+    return updatedEncouragement;
+  }
 }
+
+
 
 // Use the database storage instead of memory storage
 export const storage = new DatabaseStorage();
