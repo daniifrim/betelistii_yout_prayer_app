@@ -1,11 +1,17 @@
 import { Button } from "@/components/ui/button";
-import { Check, Loader2, BookOpen, CalendarCheck, CalendarX } from "lucide-react";
+import {
+  Check,
+  Loader2,
+  BookOpen,
+  CalendarCheck,
+  CalendarX,
+} from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { format, isToday, isFuture } from "date-fns";
-import { es } from 'date-fns/locale';
+import { es } from "date-fns/locale";
 
 interface PrayerCardProps {
   selectedDate: Date;
@@ -13,34 +19,34 @@ interface PrayerCardProps {
 
 export default function PrayerCard({ selectedDate }: PrayerCardProps) {
   const queryClient = useQueryClient();
-  
+
   interface PrayerData {
     id?: number;
     userId?: number;
     date: string;
     completed: boolean;
   }
-  
-  const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+
+  const formattedDate = format(selectedDate, "yyyy-MM-dd");
   const isTodaySelected = isToday(selectedDate);
   const isFutureDate = isFuture(selectedDate);
-  
+
   // Use different endpoints based on selected date
-  const queryKey = isTodaySelected 
-    ? ["/api/prayers/today"] 
+  const queryKey = isTodaySelected
+    ? ["/api/prayers/today"]
     : [`/api/prayers/date/${formattedDate}`];
-  
+
   const { data: prayer, isLoading } = useQuery<PrayerData>({
     queryKey,
-    enabled: !isFutureDate // Do not fetch for future dates
+    enabled: !isFutureDate, // Do not fetch for future dates
   });
-  
+
   const togglePrayerMutation = useMutation({
     mutationFn: async () => {
-      const endpoint = isTodaySelected 
-        ? "/api/prayers/today" 
+      const endpoint = isTodaySelected
+        ? "/api/prayers/today"
         : `/api/prayers/date/${formattedDate}`;
-      
+
       const res = await apiRequest("POST", endpoint, {});
       return await res.json();
     },
@@ -51,45 +57,45 @@ export default function PrayerCard({ selectedDate }: PrayerCardProps) {
       } else {
         queryClient.setQueryData([`/api/prayers/date/${formattedDate}`], data);
       }
-      
+
       // Forzar actualización de todos los recursos afectados
       // Invalidar y refrescar inmediatamente todas las consultas relacionadas
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         queryKey: ["/api/prayers"],
-        refetchType: 'all' 
+        refetchType: "all",
       });
-      
+
       // Actualizar otras consultas relacionadas
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         queryKey: ["/api/prayers/today"],
-        refetchType: 'all'
+        refetchType: "all",
       });
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         queryKey: ["/api/stats/me"],
-        refetchType: 'all'
+        refetchType: "all",
       });
-      
+
       // Asegurar que todas las consultas se actualicen
       setTimeout(() => {
-        queryClient.invalidateQueries({ 
+        queryClient.invalidateQueries({
           queryKey: ["/api/prayers"],
-          refetchType: 'all'
+          refetchType: "all",
         });
       }, 500);
     },
     onError: (error) => {
       console.error("Error al cambiar estado de oración:", error);
-    }
+    },
   });
-  
+
   const handleTogglePrayer = () => {
     if (!isFutureDate) {
       togglePrayerMutation.mutate();
     }
   };
-  
+
   const isCompleted = prayer?.completed;
-  
+
   if (isLoading && !isFutureDate) {
     return (
       <Card className="mb-8 border-2 border-dashed border-primary/30">
@@ -99,7 +105,7 @@ export default function PrayerCard({ selectedDate }: PrayerCardProps) {
       </Card>
     );
   }
-  
+
   // Handle future dates
   if (isFutureDate) {
     return (
@@ -107,17 +113,15 @@ export default function PrayerCard({ selectedDate }: PrayerCardProps) {
         <CardHeader className="py-3 px-6 bg-gray-50">
           <div className="flex items-center justify-center">
             <CalendarX className="h-5 w-5 mr-2 text-gray-400" />
-            <h2 className="text-lg font-bold text-gray-500">
-              Fecha futura
-            </h2>
+            <h2 className="text-lg font-bold text-gray-500">Fecha futura</h2>
           </div>
         </CardHeader>
-        
+
         <CardContent className="flex flex-col items-center justify-center p-6">
           <p className="text-gray-500 mb-6 text-center">
             No puedes registrar oración para una fecha futura.
           </p>
-          
+
           <Button
             disabled={true}
             variant="outline"
@@ -131,84 +135,86 @@ export default function PrayerCard({ selectedDate }: PrayerCardProps) {
       </Card>
     );
   }
-  
+
   // Get friendly date text
   const getDateText = () => {
     if (isTodaySelected) {
-      return isCompleted 
-        ? "¡Gracias por tu oración hoy!" 
-        : "¿Has orado hoy?";
+      return isCompleted ? "¡Gracias por tu oración hoy!" : "¿Has orado hoy?";
     } else {
-      const formattedDisplayDate = format(selectedDate, "d 'de' MMMM", { locale: es });
+      const formattedDisplayDate = format(selectedDate, "d 'de' MMMM", {
+        locale: es,
+      });
       return isCompleted
         ? `¡Gracias por tu oración el ${formattedDisplayDate}!`
         : `¿Oraste el ${formattedDisplayDate}?`;
     }
   };
-  
+
   // Get description text
   const getDescriptionText = () => {
     if (isTodaySelected) {
-      return isCompleted 
-        ? "Tu fidelidad en la oración fortalece a todo el grupo." 
-        : "Toma un momento para conectar con Dios hoy.";
+      return isCompleted
+        ? "Tu fidelidad en la oración fortalece a todo el grupo."
+        : "Toma un momento orar por los jóvenes hoy.";
     } else {
       return isCompleted
-        ? "Cada día de oración cuenta en tu camino espiritual."
+        ? "Cada día de oración cuenta! Sigue así."
         : "Puedes actualizar tu registro de oración para esta fecha.";
     }
   };
-  
+
   // Get button text
   const getButtonText = () => {
     if (isTodaySelected) {
-      return isCompleted 
-        ? "¡He orado hoy!" 
-        : "He orado hoy";
+      return isCompleted ? "¡He orado hoy!" : "Marcar como orado";
     } else {
-      return isCompleted
-        ? "Desmarcar oración"
-        : "Marcar como orado";
+      return isCompleted ? "Desmarcar oración" : "Marcar como orado";
     }
   };
-  
+
   return (
-    <Card className={cn(
-      "mb-8 border-2 overflow-hidden",
-      isCompleted ? "border-green-500/50" : "border-primary/50"
-    )}>
-      <CardHeader className={cn(
-        "py-3 px-6",
-        isCompleted ? "bg-green-50" : "bg-primary/5"
-      )}>
+    <Card
+      className={cn(
+        "mb-8 border-2 overflow-hidden",
+        isCompleted ? "border-green-500/50" : "border-primary/50",
+      )}
+    >
+      <CardHeader
+        className={cn(
+          "py-3 px-6",
+          isCompleted ? "bg-green-50" : "bg-primary/5",
+        )}
+      >
         <div className="flex items-center justify-center">
-          <CalendarCheck className={cn(
-            "h-5 w-5 mr-2",
-            isCompleted ? "text-green-500" : "text-primary"
-          )} />
-          <h2 className={cn(
-            "text-lg font-bold",
-            isCompleted ? "text-green-700" : "text-primary/90"
-          )}>
+          <CalendarCheck
+            className={cn(
+              "h-5 w-5 mr-2",
+              isCompleted ? "text-green-500" : "text-primary",
+            )}
+          />
+          <h2
+            className={cn(
+              "text-lg font-bold",
+              isCompleted ? "text-green-700" : "text-primary/90",
+            )}
+          >
             {getDateText()}
           </h2>
         </div>
       </CardHeader>
-      
+
       <CardContent className="flex flex-col items-center justify-center p-6">
-        <p className="text-gray-600 mb-6 text-center">
-          {getDescriptionText()}
-        </p>
-        
+        <p className="text-gray-600 mb-6 text-center">{getDescriptionText()}</p>
+
         <Button
           onClick={handleTogglePrayer}
           disabled={togglePrayerMutation.isPending}
           variant={isCompleted ? "outline" : "default"}
           className={cn(
             "py-6 px-8 rounded-xl text-lg w-full max-w-md",
-            isCompleted 
-              ? "border-2 border-green-500 text-green-600 hover:bg-green-50" 
-              : "bg-primary hover:bg-primary/90"
+            isCompleted
+              ? "border-2 border-green-500 text-green-600 hover:bg-green-50"
+              : "bg-primary hover:bg-primary/90",
           )}
           size="lg"
         >

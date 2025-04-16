@@ -25,7 +25,9 @@ export const prayers = pgTable("prayers", {
 export const quotes = pgTable("quotes", {
   id: serial("id").primaryKey(),
   text: text("text").notNull(),
+  text_en: text("text_en"),
   author: text("author").notNull(),
+  source: text("source"),
   dayOfYear: integer("day_of_year").notNull().unique(),
 });
 
@@ -59,7 +61,9 @@ export const insertPrayerSchema = createInsertSchema(prayers).pick({
 
 export const insertQuoteSchema = createInsertSchema(quotes).pick({
   text: true,
+  text_en: true,
   author: true,
+  source: true,
   dayOfYear: true,
 });
 

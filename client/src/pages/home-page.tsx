@@ -34,11 +34,8 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              ¡Bienvenido de nuevo, {user?.name.split(' ')[0]}!
+              ¡Bienvenido, {user?.name.split(' ')[0]}!
             </h1>
-            <p className="text-gray-600">
-              Tu jornada personal de oración en Betelistii.
-            </p>
           </div>
           
           {/* Calendario mensual con selección de fecha */}

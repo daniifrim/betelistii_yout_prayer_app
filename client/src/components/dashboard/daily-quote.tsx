@@ -30,11 +30,18 @@ export default function DailyQuote() {
         <p className="text-gray-800 text-lg font-medium mb-3 leading-relaxed">
           "{quote?.text}"
         </p>
-        {quote?.author && (
-          <p className="text-gray-500 text-sm italic text-right">
-            — {quote.author}
-          </p>
-        )}
+        <div className="text-right">
+          {quote?.author && (
+            <p className="text-gray-500 text-sm italic mb-1">
+              — {quote.author}
+            </p>
+          )}
+          {quote?.source && (
+            <p className="text-gray-400 text-xs italic">
+              {quote.source}
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
