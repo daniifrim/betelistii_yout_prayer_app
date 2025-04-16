@@ -140,16 +140,35 @@ export class DatabaseStorage implements IStorage {
   
   // Prayer methods
   async getPrayer(id: number): Promise<Prayer | undefined> {
-    const [prayer] = await db.select().from(prayers).where(eq(prayers.id, id));
+    const [prayer] = await db.select({
+      id: prayers.id,
+      userId: prayers.userId,
+      date: prayers.date,
+      completed: prayers.completed,
+      notes: prayers.notes
+    }).from(prayers).where(eq(prayers.id, id));
     return prayer;
   }
   
   async getPrayersByUserId(userId: number): Promise<Prayer[]> {
-    return await db.select().from(prayers).where(eq(prayers.userId, userId));
+    // Seleccionar solo las columnas que existen actualmente en la base de datos
+    return await db.select({
+      id: prayers.id,
+      userId: prayers.userId,
+      date: prayers.date,
+      completed: prayers.completed,
+      notes: prayers.notes
+    }).from(prayers).where(eq(prayers.userId, userId));
   }
   
   async getPrayerByUserIdAndDate(userId: number, date: string): Promise<Prayer | undefined> {
-    const [prayer] = await db.select().from(prayers)
+    const [prayer] = await db.select({
+      id: prayers.id,
+      userId: prayers.userId,
+      date: prayers.date,
+      completed: prayers.completed,
+      notes: prayers.notes
+    }).from(prayers)
       .where(and(
         eq(prayers.userId, userId),
         eq(prayers.date, date)
@@ -178,7 +197,13 @@ export class DatabaseStorage implements IStorage {
   }
   
   async getAllPrayers(): Promise<Prayer[]> {
-    return await db.select().from(prayers);
+    return await db.select({
+      id: prayers.id,
+      userId: prayers.userId,
+      date: prayers.date,
+      completed: prayers.completed,
+      notes: prayers.notes
+    }).from(prayers);
   }
 
   // Quote methods

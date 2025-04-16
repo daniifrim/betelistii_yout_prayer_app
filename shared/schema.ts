@@ -21,10 +21,6 @@ export const prayers = pgTable("prayers", {
   date: text("date").notNull(),
   completed: boolean("completed").default(true).notNull(),
   notes: text("notes"),
-  // New fields for prayer tracking
-  startTime: timestamp("start_time"),
-  endTime: timestamp("end_time"),
-  duration: integer("duration"), // Duration in seconds
 });
 
 export const quotes = pgTable("quotes", {
@@ -192,9 +188,6 @@ export const insertPrayerSchema = createInsertSchema(prayers).pick({
   date: true,
   completed: true,
   notes: true,
-  startTime: true,
-  endTime: true,
-  duration: true,
 });
 
 export const insertQuoteSchema = createInsertSchema(quotes).pick({
