@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Check, Loader2, BookMarked } from "lucide-react";
+import { Check, Loader2, BookOpen, CalendarCheck } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export default function TodaysPrayer() {
   const queryClient = useQueryClient();
@@ -48,21 +49,45 @@ export default function TodaysPrayer() {
   }
   
   return (
-    <Card className={`mb-8 border-2 ${isCompleted ? 'border-green-500/50' : 'border-primary/50'}`}>
-      <CardContent className="flex flex-col items-center justify-center p-8">
-        <h2 className="text-xl font-bold mb-6 text-center">
-          ¿Has orado hoy?
-        </h2>
+    <Card className={cn(
+      "mb-8 border-2 overflow-hidden",
+      isCompleted ? "border-green-500/50" : "border-primary/50"
+    )}>
+      <CardHeader className={cn(
+        "py-3 px-6",
+        isCompleted ? "bg-green-50" : "bg-primary/5"
+      )}>
+        <div className="flex items-center justify-center">
+          <CalendarCheck className={cn(
+            "h-5 w-5 mr-2",
+            isCompleted ? "text-green-500" : "text-primary"
+          )} />
+          <h2 className={cn(
+            "text-lg font-bold",
+            isCompleted ? "text-green-700" : "text-primary/90"
+          )}>
+            {isCompleted ? "¡Gracias por tu oración hoy!" : "¿Has orado hoy?"}
+          </h2>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="flex flex-col items-center justify-center p-6">
+        <p className="text-gray-600 mb-6 text-center">
+          {isCompleted 
+            ? "Tu fidelidad en la oración fortalece a todo el grupo." 
+            : "Toma un momento para conectar con Dios hoy."}
+        </p>
         
         <Button
           onClick={handleTogglePrayer}
           disabled={togglePrayerMutation.isPending}
           variant={isCompleted ? "outline" : "default"}
-          className={`py-6 px-8 rounded-xl text-lg w-full max-w-md ${
+          className={cn(
+            "py-6 px-8 rounded-xl text-lg w-full max-w-md",
             isCompleted 
               ? "border-2 border-green-500 text-green-600 hover:bg-green-50" 
               : "bg-primary hover:bg-primary/90"
-          }`}
+          )}
           size="lg"
         >
           {togglePrayerMutation.isPending ? (
@@ -70,7 +95,7 @@ export default function TodaysPrayer() {
           ) : isCompleted ? (
             <Check className="mr-3 h-6 w-6" />
           ) : (
-            <BookMarked className="mr-3 h-6 w-6" />
+            <BookOpen className="mr-3 h-6 w-6" />
           )}
           {isCompleted ? "¡He orado hoy!" : "He orado hoy"}
         </Button>
