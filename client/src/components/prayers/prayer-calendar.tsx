@@ -53,14 +53,14 @@ export default function PrayerCalendar({ prayers }: PrayerCalendarProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/stats/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats/team"] });
       toast({
-        title: "Prayer updated",
-        description: "Your prayer record has been updated."
+        title: "Oración actualizada",
+        description: "Tu registro de oración ha sido actualizado."
       });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Could not update prayer record.",
+        description: "No se pudo actualizar el registro de oración.",
         variant: "destructive"
       });
     }
@@ -103,12 +103,12 @@ export default function PrayerCalendar({ prayers }: PrayerCalendarProps) {
         </div>
         
         <div className="grid grid-cols-7 gap-2 mb-4">
-          <div className="text-center text-sm font-medium text-gray-500">S</div>
+          <div className="text-center text-sm font-medium text-gray-500">D</div>
+          <div className="text-center text-sm font-medium text-gray-500">L</div>
           <div className="text-center text-sm font-medium text-gray-500">M</div>
-          <div className="text-center text-sm font-medium text-gray-500">T</div>
-          <div className="text-center text-sm font-medium text-gray-500">W</div>
-          <div className="text-center text-sm font-medium text-gray-500">T</div>
-          <div className="text-center text-sm font-medium text-gray-500">F</div>
+          <div className="text-center text-sm font-medium text-gray-500">X</div>
+          <div className="text-center text-sm font-medium text-gray-500">J</div>
+          <div className="text-center text-sm font-medium text-gray-500">V</div>
           <div className="text-center text-sm font-medium text-gray-500">S</div>
         </div>
         
@@ -152,15 +152,15 @@ export default function PrayerCalendar({ prayers }: PrayerCalendarProps) {
         <div className="mt-4 flex items-center space-x-4">
           <div className="flex items-center">
             <span className="inline-block h-4 w-4 rounded-full bg-green-100 mr-2"></span>
-            <span className="text-sm text-gray-500">Completed</span>
+            <span className="text-sm text-gray-500">Completado</span>
           </div>
           <div className="flex items-center">
             <span className="inline-block h-4 w-4 rounded-full bg-primary mr-2"></span>
-            <span className="text-sm text-gray-500">Today</span>
+            <span className="text-sm text-gray-500">Hoy</span>
           </div>
           <div className="flex items-center">
             <span className="inline-block h-4 w-4 rounded-full bg-white border border-gray-200 mr-2"></span>
-            <span className="text-sm text-gray-500">Upcoming</span>
+            <span className="text-sm text-gray-500">Próximo</span>
           </div>
         </div>
       </div>

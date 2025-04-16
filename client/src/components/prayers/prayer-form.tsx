@@ -52,12 +52,12 @@ export default function PrayerForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Add Prayer Notes</CardTitle>
+        <CardTitle>Agregar Notas de Oración</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <Label htmlFor="prayer-date">Date</Label>
+            <Label htmlFor="prayer-date">Fecha</Label>
             <Input
               type="date"
               id="prayer-date"
@@ -68,11 +68,11 @@ export default function PrayerForm() {
             />
           </div>
           <div className="mb-4">
-            <Label htmlFor="prayer-notes">Notes</Label>
+            <Label htmlFor="prayer-notes">Notas</Label>
             <Textarea
               id="prayer-notes"
               rows={4}
-              placeholder="Enter any prayer notes or intentions..."
+              placeholder="Ingresa notas de oración o intenciones..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="mt-1"
@@ -86,7 +86,7 @@ export default function PrayerForm() {
               {addPrayerMutation.isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
-              Save Prayer Notes
+              Guardar Notas de Oración
             </Button>
           </div>
         </form>
