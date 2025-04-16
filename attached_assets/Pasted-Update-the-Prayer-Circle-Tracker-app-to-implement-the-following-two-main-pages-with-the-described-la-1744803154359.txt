@@ -1,0 +1,99 @@
+Update the Prayer Circle Tracker app to implement the following two main pages with the described layout, features, and design guidelines. All content and UI must be in Spanish. Use a light theme and ensure a clean, card-based layout with appropriate spacing between elements and screen edges.
+
+1. Personal (User) Page
+Layout & Components
+A. Calendar (Top Section):
+
+Display a monthly calendar at the top.
+
+Highlight today’s date.
+
+Mark days the user has prayed in green.
+
+When the user checks in for today, mark today as green.
+
+B. Inspirational Quote (Below Calendar):
+
+Show a daily inspirational quote about prayer.
+
+Use a preloaded list of at least 90 quotes (one per day).
+
+The quote should update automatically each day.
+
+C. Prayer Check-In Button (Below Quote):
+
+Prominently display a large button labeled “He orado hoy”.
+
+When pressed:
+
+Mark today as prayed (green) on the calendar.
+
+Update the user’s statistics (see below).
+
+D. Statistics Section (Below Button):
+
+Display the following stats in separate cards:
+
+Racha de oración: Consecutive days prayed (streak).
+
+Días orados este mes: Number of days prayed this month.
+
+Total de días orados: All-time total days prayed.
+
+E. Design Notes:
+
+Use card-based layout for quote and statistics.
+
+Ensure generous padding and spacing between cards and from screen edges.
+
+All labels and content in Spanish.
+
+Use the app’s light color palette.
+
+2. Group Page
+Layout & Components
+A. Member List:
+
+Display a list (or grid) of all group members (6 users).
+
+For each member, show:
+
+Name and avatar (if available).
+
+Prayer streak (consecutive days).
+
+Days prayed this month.
+
+Total days prayed.
+
+(Optional: Ranking or badge for top streaks.)
+
+B. Design Notes:
+
+Use card or list items for each member.
+
+Maintain consistent padding and spacing as on the Personal Page.
+
+All content in Spanish.
+
+Light theme, clean and modern look.
+
+General Guidelines
+Language: All UI and content in Spanish.
+
+Theme: Light theme only.
+
+Design: Card-based layout, mobile-first, responsive. Use calm blue (#123458), light gray (#ecf0f1), and soft green (#48A6A7).
+
+Spacing: Ensure cards and main elements have padding/gaps from screen edges and between each other (“let cards breathe”).
+
+Typography: Use clear, easy-to-read fonts.
+
+Notifications: Not required at this stage.
+
+Implementation Order
+Build the Personal (User) Page as described.
+
+Then implement the Group Page.
+
+Focus on clean layout and correct data flow for check-ins and statistics.

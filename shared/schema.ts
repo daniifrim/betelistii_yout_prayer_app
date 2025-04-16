@@ -22,6 +22,13 @@ export const prayers = pgTable("prayers", {
   notes: text("notes"),
 });
 
+export const quotes = pgTable("quotes", {
+  id: serial("id").primaryKey(),
+  text: text("text").notNull(),
+  author: text("author").notNull(),
+  dayOfYear: integer("day_of_year").notNull().unique(),
+});
+
 // Define relations
 export const usersRelations = relations(users, ({ many }) => ({
   prayers: many(prayers),
@@ -50,7 +57,15 @@ export const insertPrayerSchema = createInsertSchema(prayers).pick({
   notes: true,
 });
 
+export const insertQuoteSchema = createInsertSchema(quotes).pick({
+  text: true,
+  author: true,
+  dayOfYear: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertPrayer = z.infer<typeof insertPrayerSchema>;
+export type InsertQuote = z.infer<typeof insertQuoteSchema>;
 export type User = typeof users.$inferSelect;
 export type Prayer = typeof prayers.$inferSelect;
+export type Quote = typeof quotes.$inferSelect;

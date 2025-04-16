@@ -1,4 +1,4 @@
-import { users, type User, type InsertUser, prayers, type Prayer, type InsertPrayer } from "@shared/schema";
+import { users, type User, type InsertUser, prayers, type Prayer, type InsertPrayer, quotes, type Quote, type InsertQuote } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
@@ -26,21 +26,31 @@ export interface IStorage {
   
   getAllPrayers(): Promise<Prayer[]>;
   
+  getQuoteByDayOfYear(dayOfYear: number): Promise<Quote | undefined>;
+  getAllQuotes(): Promise<Quote[]>;
+  createQuote(quote: InsertQuote): Promise<Quote>;
+  updateQuote(id: number, quote: Partial<Quote>): Promise<Quote | undefined>;
+  deleteQuote(id: number): Promise<boolean>;
+  
   sessionStore: any; // Type as 'any' to avoid session typing issues
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private prayers: Map<number, Prayer>;
+  private quotes: Map<number, Quote>;
   sessionStore: any;
   userCurrentId: number;
   prayerCurrentId: number;
+  quoteCurrentId: number;
 
   constructor() {
     this.users = new Map();
     this.prayers = new Map();
+    this.quotes = new Map();
     this.userCurrentId = 1;
     this.prayerCurrentId = 1;
+    this.quoteCurrentId = 1;
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000,
     });
@@ -137,6 +147,39 @@ export class MemStorage implements IStorage {
   async getAllPrayers(): Promise<Prayer[]> {
     return Array.from(this.prayers.values());
   }
+
+  async getQuoteByDayOfYear(dayOfYear: number): Promise<Quote | undefined> {
+    return Array.from(this.quotes.values()).find(
+      (quote) => quote.dayOfYear === dayOfYear
+    );
+  }
+  
+  async getAllQuotes(): Promise<Quote[]> {
+    return Array.from(this.quotes.values());
+  }
+  
+  async createQuote(insertQuote: InsertQuote): Promise<Quote> {
+    const id = this.quoteCurrentId++;
+    const quote: Quote = {
+      ...insertQuote,
+      id
+    };
+    this.quotes.set(id, quote);
+    return quote;
+  }
+  
+  async updateQuote(id: number, quoteData: Partial<Quote>): Promise<Quote | undefined> {
+    const quote = this.quotes.get(id);
+    if (!quote) return undefined;
+    
+    const updatedQuote = { ...quote, ...quoteData };
+    this.quotes.set(id, updatedQuote);
+    return updatedQuote;
+  }
+  
+  async deleteQuote(id: number): Promise<boolean> {
+    return this.quotes.delete(id);
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -228,6 +271,35 @@ export class DatabaseStorage implements IStorage {
   
   async getAllPrayers(): Promise<Prayer[]> {
     return await db.select().from(prayers);
+  }
+
+  async getQuoteByDayOfYear(dayOfYear: number): Promise<Quote | undefined> {
+    const [quote] = await db.select().from(quotes).where(eq(quotes.dayOfYear, dayOfYear));
+    return quote;
+  }
+  
+  async getAllQuotes(): Promise<Quote[]> {
+    return await db.select().from(quotes);
+  }
+  
+  async createQuote(insertQuote: InsertQuote): Promise<Quote> {
+    const [quote] = await db.insert(quotes).values(insertQuote).returning();
+    return quote;
+  }
+  
+  async updateQuote(id: number, quoteData: Partial<Quote>): Promise<Quote | undefined> {
+    const [quote] = await db.update(quotes)
+      .set(quoteData)
+      .where(eq(quotes.id, id))
+      .returning();
+    return quote;
+  }
+  
+  async deleteQuote(id: number): Promise<boolean> {
+    const [deleted] = await db.delete(quotes)
+      .where(eq(quotes.id, id))
+      .returning();
+    return !!deleted;
   }
 }
 
