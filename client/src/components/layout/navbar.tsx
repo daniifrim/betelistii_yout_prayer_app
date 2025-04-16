@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { Pause, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Link } from "wouter";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import logoSvg from "../../assets/betelistii_red.svg";
 
 export default function Navbar() {
   const { user, logoutMutation } = useAuth();
@@ -34,7 +35,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Pause className="h-6 w-6 text-primary mr-2" />
+              <img src={logoSvg} alt="Betelistii Logo" className="h-8 w-auto mr-2" />
               <span className="font-bold text-xl text-gray-800">Betelistii Prayer Tracker</span>
             </div>
             
