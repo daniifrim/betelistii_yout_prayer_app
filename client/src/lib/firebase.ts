@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from "firebase/auth";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -29,37 +29,75 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 export const signInWithGoogle = async () => {
+  // Add scopes for the Google provider
+  googleProvider.addScope('profile');
+  googleProvider.addScope('email');
+  
+  // Set custom parameters for better UX
+  googleProvider.setCustomParameters({
+    prompt: 'select_account'
+  });
+  
+  // First try popup method, if it fails, fall back to redirect
   try {
-    // Add scopes for the Google provider
-    googleProvider.addScope('profile');
-    googleProvider.addScope('email');
+    console.log("Attempting Google sign-in with popup...");
+    const result = await signInWithPopup(auth, googleProvider);
+    console.log("Successfully signed in with Google popup:", result.user.displayName);
     
-    // Set custom parameters for better UX
-    googleProvider.setCustomParameters({
-      prompt: 'select_account'
-    });
-    
-    // Use redirect method instead of popup
-    await signInWithRedirect(auth, googleProvider);
-    
-    // This won't be reached immediately because the page will redirect
     return {
+      user: result.user,
       success: true
     };
-  } catch (error: any) {
-    console.error("Error signing in with Google", error);
-    console.error("Google sign-in error details:", error);
+  } catch (popupError: any) {
+    console.error("Popup method failed, error:", popupError);
     
-    // Provide more detailed error information
-    let errorMessage = "Failed to start Google authentication";
+    // If popup fails for specific reasons, try redirect instead
+    if (
+      popupError.code === 'auth/popup-blocked' || 
+      popupError.code === 'auth/popup-closed-by-user' ||
+      popupError.code === 'auth/cancelled-popup-request'
+    ) {
+      try {
+        console.log("Attempting Google sign-in with redirect instead...");
+        await signInWithRedirect(auth, googleProvider);
+        // If redirect succeeds, the page will reload so we won't reach this point
+        return { success: true };
+      } catch (redirectError: any) {
+        console.error("Redirect method also failed, error:", redirectError);
+        return {
+          user: null,
+          success: false,
+          error: {
+            code: redirectError.code || 'unknown-error',
+            message: `Redirect sign-in failed: ${redirectError.message}`
+          }
+        };
+      }
+    }
     
+    // If it's an unauthorized domain error, provide a clear message
+    if (popupError.code === 'auth/unauthorized-domain') {
+      const errorMessage = `The domain "${window.location.origin}" is not authorized for Google authentication. Please add "${window.location.hostname}" to your Firebase console's authorized domains list.`;
+      
+      console.error(errorMessage);
+      return {
+        user: null,
+        success: false,
+        error: {
+          code: popupError.code,
+          message: errorMessage
+        }
+      };
+    }
+    
+    // For other errors, return the details
     return {
       user: null,
       success: false,
       error: {
-        code: error.code || 'unknown-error',
-        message: errorMessage
-      },
+        code: popupError.code || 'unknown-error',
+        message: popupError.message || "Failed to authenticate with Google"
+      }
     };
   }
 };

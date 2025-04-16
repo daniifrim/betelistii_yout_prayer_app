@@ -17,7 +17,7 @@ type AuthContextType = {
   loginMutation: UseMutationResult<SelectUser, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
   registerMutation: UseMutationResult<SelectUser, Error, InsertUser>;
-  googleSignInMutation: UseMutationResult<SelectUser, Error, void>;
+  googleSignInMutation: UseMutationResult<SelectUser | null, Error, void>;
 };
 
 type LoginData = Pick<InsertUser, "username" | "password">;
@@ -98,24 +98,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const googleSignInMutation = useMutation({
     mutationFn: async () => {
-      // Call Firebase to initiate Google sign-in with redirect
-      await signInWithGoogle();
+      // Call Firebase to handle Google sign-in (tries popup first, then redirect)
+      const result = await signInWithGoogle();
       
-      // This function will not complete normally since the page will be redirected
-      // We're only throwing this to prevent the "success" handler from running
-      throw new Error("Redirecting to Google sign-in");
+      if (!result.success) {
+        throw new Error(result.error?.message || "Failed to sign in with Google");
+      }
+      
+      // If we have a user (from popup auth), authenticate with our backend
+      if (result.user) {
+        const idToken = await result.user.getIdToken();
+        const res = await apiRequest("POST", "/api/auth/google", { idToken });
+        return await res.json();
+      }
+      
+      // For redirect flow, this function completes but the page will reload,
+      // so we don't need to return anything meaningful
+      return null;
     },
-    onError: (error: Error) => {
-      // Only show error if it's not the redirect error we threw
-      if (error.message !== "Redirecting to Google sign-in") {
-        console.error("Google sign-in redirect error:", error);
-        
+    onSuccess: (user: SelectUser | null) => {
+      if (user) {
+        queryClient.setQueryData(["/api/user"], user);
         toast({
-          title: "Google sign-in failed",
-          description: error.message || "Failed to redirect to Google sign-in",
-          variant: "destructive",
+          title: "Sign in successful",
+          description: `Welcome, ${user.name}!`,
         });
       }
+    },
+    onError: (error: Error) => {
+      console.error("Google sign-in error:", error);
+      
+      toast({
+        title: "Google sign-in failed",
+        description: error.message || "Failed to sign in with Google",
+        variant: "destructive",
+      });
     },
   });
   
