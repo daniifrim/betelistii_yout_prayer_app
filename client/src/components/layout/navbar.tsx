@@ -69,7 +69,7 @@ export default function Navbar() {
                     ? "border-primary text-primary" 
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}>
-                  Statistics
+                  Estadísticas
                 </a>
               </Link>
               {user?.isAdmin && (
@@ -79,7 +79,7 @@ export default function Navbar() {
                       ? "border-primary text-primary" 
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}>
-                    Admin
+                    Administrador
                   </a>
                 </Link>
               )}
@@ -138,7 +138,7 @@ export default function Navbar() {
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                Dashboard
+                Inicio
               </a>
             </Link>
             <Link href="/prayers">
@@ -150,7 +150,7 @@ export default function Navbar() {
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                Daily Prayers
+                Oraciones Diarias
               </a>
             </Link>
             <Link href="/stats">
@@ -162,7 +162,7 @@ export default function Navbar() {
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                Statistics
+                Estadísticas
               </a>
             </Link>
             {user?.isAdmin && (
@@ -175,7 +175,7 @@ export default function Navbar() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Admin
+                  Administrador
                 </a>
               </Link>
             )}
