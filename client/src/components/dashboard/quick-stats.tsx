@@ -32,7 +32,7 @@ export default function QuickStats({ stats }: StatsProps) {
                       <svg className="self-center flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                         <path fillRule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
                       </svg>
-                      <span className="sr-only">Increased by</span>
+                      <span className="sr-only">Incrementado por</span>
                       1
                     </div>
                   </dd>
@@ -61,8 +61,8 @@ export default function QuickStats({ stats }: StatsProps) {
                       <svg className="self-center flex-shrink-0 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                         <path fillRule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
                       </svg>
-                      <span className="sr-only">Increased by</span>
-                      {Math.floor(Math.random() * 5) + 1} {/* Just for visual demonstration */}
+                      <span className="sr-only">Incrementado por</span>
+                      {Math.floor(Math.random() * 5) + 1} {/* Solo para demostración visual */}
                     </div>
                   </dd>
                 </dl>

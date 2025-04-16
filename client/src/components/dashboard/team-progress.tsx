@@ -17,7 +17,7 @@ export default function TeamProgress({ teamData }: TeamProgressProps) {
   return (
     <div className="bg-white shadow rounded-lg">
       <div className="px-4 py-5 sm:p-6">
-        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Team Progress</h3>
+        <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Progreso del Equipo</h3>
         
         {sortedTeamData.map((member) => (
           <div className="mb-4" key={member.userId}>
@@ -30,7 +30,7 @@ export default function TeamProgress({ teamData }: TeamProgressProps) {
         ))}
         
         {sortedTeamData.length === 0 && (
-          <p className="text-gray-500 italic text-sm">No team progress data available yet.</p>
+          <p className="text-gray-500 italic text-sm">Aún no hay datos de progreso del equipo disponibles.</p>
         )}
       </div>
     </div>

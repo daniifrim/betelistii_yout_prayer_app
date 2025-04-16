@@ -82,13 +82,13 @@ export default function PrayerCalendar({ prayers }: PrayerCalendarProps) {
     <div className="bg-white shadow rounded-lg mb-8">
       <div className="px-4 py-5 sm:p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Prayer Calendar</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Calendario de Oraciones</h2>
           <div className="flex space-x-2">
             <button 
               onClick={prevMonth}
               className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
             >
-              Previous
+              Anterior
             </button>
             <span className="text-gray-900 font-medium">
               {format(currentMonth, 'MMMM yyyy')}
@@ -97,7 +97,7 @@ export default function PrayerCalendar({ prayers }: PrayerCalendarProps) {
               onClick={nextMonth}
               className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
             >
-              Next
+              Siguiente
             </button>
           </div>
         </div>
