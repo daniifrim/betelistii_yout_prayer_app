@@ -13,11 +13,12 @@ interface MonthlyCalendarProps {
 }
 
 export default function MonthlyCalendar({ selectedDate, onSelectDate }: MonthlyCalendarProps) {
-  // Refetching frequently to ensure consistent data
+  // Consultar las oraciones con una alta frecuencia de actualización
+  // para garantizar que el calendario esté siempre actualizado
   const { data: prayers = [] } = useQuery<Prayer[]>({
     queryKey: ["/api/prayers"],
-    // Refresh data every 2 seconds to ensure calendar stays in sync with prayer card
-    refetchInterval: 2000,
+    // Actualizar los datos cada 1.5 segundos para mantener el calendario sincronizado
+    refetchInterval: 1500,
   });
   
   // Filter completed prayers for highlighting dates

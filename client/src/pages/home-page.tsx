@@ -7,32 +7,12 @@ import PrayerCard from "@/components/dashboard/todays-prayer";
 import MonthlyCalendar from "@/components/dashboard/monthly-calendar";
 import DailyQuote from "@/components/dashboard/daily-quote";
 import { useQuery } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queryClient";
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { startOfDay } from 'date-fns';
 
 export default function HomePage() {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()));
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  
-  // Función para forzar actualización de datos
-  const forcePrayerUpdate = useCallback(() => {
-    setRefreshTrigger(prev => prev + 1);
-    // Forzar refrescar los datos
-    queryClient.invalidateQueries({ queryKey: ["/api/prayers"] });
-    queryClient.invalidateQueries({ queryKey: ["/api/stats/me"] });
-  }, []);
-  
-  // Configurar un intervalo para mantener los datos sincronizados
-  useEffect(() => {
-    // Actualizar datos cada 3 segundos
-    const interval = setInterval(() => {
-      forcePrayerUpdate();
-    }, 3000);
-    
-    return () => clearInterval(interval);
-  }, [forcePrayerUpdate]);
   
   interface QuickStatsData {
     streak: number;
@@ -41,7 +21,9 @@ export default function HomePage() {
   }
   
   const { data: stats } = useQuery<QuickStatsData>({
-    queryKey: ["/api/stats/me", refreshTrigger],
+    queryKey: ["/api/stats/me"],
+    // Para sincronizar datos, usamos refetchInterval en lugar de callback manual
+    refetchInterval: 2000,
   });
 
   return (

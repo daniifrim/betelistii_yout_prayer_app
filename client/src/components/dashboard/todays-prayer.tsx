@@ -45,21 +45,40 @@ export default function PrayerCard({ selectedDate }: PrayerCardProps) {
       return await res.json();
     },
     onSuccess: (data) => {
-      // Immediate update for better UX
+      // Actualización inmediata para mejor experiencia de usuario
       if (isTodaySelected) {
         queryClient.setQueryData(["/api/prayers/today"], data);
       } else {
         queryClient.setQueryData([`/api/prayers/date/${formattedDate}`], data);
       }
       
-      // Force refetch all affected resources
-      queryClient.invalidateQueries({ queryKey: ["/api/prayers"], refetchType: 'all' });
-      queryClient.invalidateQueries({ queryKey: ["/api/prayers/today"], refetchType: 'all' });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats/me"], refetchType: 'all' });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats/team"], refetchType: 'all' });
+      // Forzar actualización de todos los recursos afectados
+      // Invalidar y refrescar inmediatamente todas las consultas relacionadas
+      queryClient.invalidateQueries({ 
+        queryKey: ["/api/prayers"],
+        refetchType: 'all' 
+      });
+      
+      // Actualizar otras consultas relacionadas
+      queryClient.invalidateQueries({ 
+        queryKey: ["/api/prayers/today"],
+        refetchType: 'all'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ["/api/stats/me"],
+        refetchType: 'all'
+      });
+      
+      // Asegurar que todas las consultas se actualicen
+      setTimeout(() => {
+        queryClient.invalidateQueries({ 
+          queryKey: ["/api/prayers"],
+          refetchType: 'all'
+        });
+      }, 500);
     },
     onError: (error) => {
-      console.error("Error toggling prayer:", error);
+      console.error("Error al cambiar estado de oración:", error);
     }
   });
   
