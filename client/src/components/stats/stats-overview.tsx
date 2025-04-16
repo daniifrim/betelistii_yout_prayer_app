@@ -31,7 +31,7 @@ export default function StatsOverview({ stats }: StatsOverviewProps) {
     prayers: member.totalCompleted,
   }));
   
-  const months = ['January', 'February', 'March', 'April', 'May', 'June'];
+  const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio'];
   
   // Mock monthly progress data
   const monthlyData = months.map(month => ({
@@ -41,11 +41,11 @@ export default function StatsOverview({ stats }: StatsOverviewProps) {
   
   return (
     <div className="mb-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Team Statistics</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Estadísticas del Equipo</h2>
       
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle className="text-md">Monthly Team Progress</CardTitle>
+          <CardTitle className="text-md">Progreso Mensual del Equipo</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64 w-full">

@@ -30,15 +30,15 @@ export default function PrayerForm() {
       queryClient.invalidateQueries({ queryKey: ["/api/stats/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats/team"] });
       toast({
-        title: "Prayer added",
-        description: "Your prayer notes have been saved."
+        title: "Oración agregada",
+        description: "Tus notas de oración han sido guardadas."
       });
       setNotes(""); // Clear the notes field after successful submission
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Could not save prayer notes.",
+        description: "No se pudieron guardar las notas de oración.",
         variant: "destructive"
       });
     }
