@@ -372,7 +372,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const today = new Date();
     const dayOfYear = getDayOfYear(today);
     
-    const quote = await storage.getQuoteByDayOfYear(dayOfYear);
+    // Para que las citas se repartan a lo largo del año, usamos mod 100
+    const adjustedDayOfYear = ((dayOfYear - 1) % 100) + 1;
+    
+    const quote = await storage.getQuoteByDayOfYear(adjustedDayOfYear);
     
     if (quote) {
       res.json(quote);
@@ -382,8 +385,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: 0,
         text: "Cada día es una nueva oportunidad para acercarse a Dios.",
         author: "Betelistii",
-        dayOfYear: dayOfYear
+        dayOfYear: adjustedDayOfYear
       });
+    }
+  });
+  
+  // Import quotes endpoint (admin only)
+  app.post("/api/admin/import-quotes", ensureAdmin, async (req, res) => {
+    try {
+      const quotes = req.body.quotes;
+      
+      if (!Array.isArray(quotes)) {
+        return res.status(400).json({ message: "Se esperaba un array de citas" });
+      }
+      
+      let importedCount = 0;
+      
+      for (let i = 0; i < quotes.length; i++) {
+        const quote = quotes[i];
+        const dayOfYear = i + 1;
+        
+        // Check if a quote already exists for this day
+        const existingQuote = await storage.getQuoteByDayOfYear(dayOfYear);
+        
+        if (existingQuote) {
+          // Update existing quote
+          await storage.updateQuote(existingQuote.id, {
+            text: quote.quote_es || quote.text,
+            author: "Betelistii",
+            dayOfYear: dayOfYear
+          });
+        } else {
+          // Create new quote
+          await storage.createQuote({
+            text: quote.quote_es || quote.text,
+            author: "Betelistii",
+            dayOfYear: dayOfYear
+          });
+        }
+        
+        importedCount++;
+      }
+      
+      res.json({ 
+        message: `${importedCount} citas importadas con éxito`,
+        count: importedCount
+      });
+    } catch (error) {
+      console.error("Error al importar citas:", error);
+      res.status(500).json({ message: "Error al importar citas" });
     }
   });
 
