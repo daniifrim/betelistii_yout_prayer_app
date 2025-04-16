@@ -97,7 +97,7 @@ export default function Navbar() {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
+                    <span>Cerrar sesión</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -109,7 +109,7 @@ export default function Navbar() {
                 className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"
                 onClick={toggleMenu}
               >
-                <span className="sr-only">Open main menu</span>
+                <span className="sr-only">Abrir menú principal</span>
                 {isMenuOpen ? (
                   <X className="block h-6 w-6" />
                 ) : (
@@ -121,7 +121,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Menú móvil */}
       {isMenuOpen && (
         <div className="sm:hidden">
           <div className="pt-2 pb-3 space-y-1">
@@ -185,7 +185,7 @@ export default function Navbar() {
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
                 >
-                  Log out
+                  Cerrar sesión
                 </button>
               </div>
             </div>
