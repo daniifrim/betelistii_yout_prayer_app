@@ -375,18 +375,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Para que las citas se repartan a lo largo del año, usamos mod 100
     const adjustedDayOfYear = ((dayOfYear - 1) % 100) + 1;
     
+    console.log('Fecha actual:', today);
+    console.log('Día del año original:', dayOfYear);
+    console.log('Día del año ajustado:', adjustedDayOfYear);
+    
     const quote = await storage.getQuoteByDayOfYear(adjustedDayOfYear);
+    console.log('Cita encontrada:', quote);
     
     if (quote) {
       res.json(quote);
     } else {
       // Return a default quote if none exists for today
-      res.json({ 
+      const defaultQuote = { 
         id: 0,
         text: "Cada día es una nueva oportunidad para acercarse a Dios.",
         author: "Betelistii",
         dayOfYear: adjustedDayOfYear
-      });
+      };
+      console.log('Retornando cita por defecto:', defaultQuote);
+      res.json(defaultQuote);
     }
   });
   
