@@ -79,7 +79,8 @@ export class MemStorage implements IStorage {
       ...insertUser, 
       id,
       isAdmin: insertUser.isAdmin ?? false, 
-      firebaseUid: insertUser.firebaseUid ?? null
+      firebaseUid: insertUser.firebaseUid ?? null,
+      photoURL: insertUser.photoURL ?? null
     };
     this.users.set(id, user);
     return user;

@@ -12,6 +12,7 @@ export const users = pgTable("users", {
   isAdmin: boolean("is_admin").default(false).notNull(),
   // For Firebase auth
   firebaseUid: text("firebase_uid").unique(),
+  photoURL: text("photo_url"),
 });
 
 export const prayers = pgTable("prayers", {
@@ -50,6 +51,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
   isAdmin: true,
   firebaseUid: true,
+  photoURL: true,
 });
 
 export const insertPrayerSchema = createInsertSchema(prayers).pick({

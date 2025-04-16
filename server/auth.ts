@@ -118,6 +118,7 @@ export function setupAuth(app: Express) {
       const { uid } = decodedToken;
       const email = decodedToken.email || '';
       const displayName = decodedToken.name || decodedToken.displayName || '';
+      const photoURL = decodedToken.picture || '';
       
       console.log(`Firebase user authenticated: ${displayName} (${email}), UID: ${uid}`);
       
