@@ -100,6 +100,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(201).json(newPrayer);
     }
   });
+  
+  // Toggle prayer for a specific date (mark completed or not)
+  app.post("/api/prayers/date/:date", ensureAuthenticated, async (req, res) => {
+    const userId = req.user!.id;
+    const date = req.params.date;
+    
+    // Validate date format
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({ message: "Invalid date format. Expected yyyy-MM-dd" });
+    }
+    
+    // Check if date is in the future
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate > today) {
+      return res.status(400).json({ message: "Cannot update prayer status for future dates" });
+    }
+    
+    const existingPrayer = await storage.getPrayerByUserIdAndDate(userId, date);
+    
+    if (existingPrayer) {
+      // Toggle completed status
+      const updatedPrayer = await storage.updatePrayer(existingPrayer.id, {
+        completed: !existingPrayer.completed
+      });
+      return res.json(updatedPrayer);
+    } else {
+      // Create new prayer for the specified date
+      const newPrayer = await storage.createPrayer({
+        userId,
+        date,
+        completed: true,
+        notes: req.body.notes || ""
+      });
+      return res.status(201).json(newPrayer);
+    }
+  });
 
   // Get today's prayer status
   app.get("/api/prayers/today", ensureAuthenticated, async (req, res) => {
@@ -112,6 +151,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(prayer);
     } else {
       res.json({ completed: false, date: today, userId });
+    }
+  });
+  
+  // Get prayer status for a specific date
+  app.get("/api/prayers/date/:date", ensureAuthenticated, async (req, res) => {
+    const userId = req.user!.id;
+    const date = req.params.date;
+    
+    // Validate date format (yyyy-MM-dd)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({ message: "Invalid date format. Expected yyyy-MM-dd" });
+    }
+    
+    const prayer = await storage.getPrayerByUserIdAndDate(userId, date);
+    
+    if (prayer) {
+      res.json(prayer);
+    } else {
+      res.json({ completed: false, date, userId });
     }
   });
 

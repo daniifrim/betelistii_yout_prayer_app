@@ -3,13 +3,16 @@ import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 import MobileNavbar from "@/components/layout/mobile-navbar";
 import QuickStats from "@/components/dashboard/quick-stats";
-import TodaysPrayer from "@/components/dashboard/todays-prayer";
+import PrayerCard from "@/components/dashboard/todays-prayer";
 import MonthlyCalendar from "@/components/dashboard/monthly-calendar";
 import DailyQuote from "@/components/dashboard/daily-quote";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from 'react';
+import { startOfDay } from 'date-fns';
 
 export default function HomePage() {
   const { user } = useAuth();
+  const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()));
   
   interface QuickStatsData {
     streak: number;
@@ -36,14 +39,17 @@ export default function HomePage() {
             </p>
           </div>
           
-          {/* Calendario mensual */}
-          <MonthlyCalendar />
+          {/* Calendario mensual con selección de fecha */}
+          <MonthlyCalendar 
+            selectedDate={selectedDate} 
+            onSelectDate={setSelectedDate}
+          />
+          
+          {/* Tarjeta de oración que refleja la fecha seleccionada */}
+          <PrayerCard selectedDate={selectedDate} />
           
           {/* Cita diaria inspiradora */}
           <DailyQuote />
-          
-          {/* Botón grande para oración de hoy */}
-          <TodaysPrayer />
           
           {/* Estadísticas personales */}
           {stats && <QuickStats stats={stats} />}

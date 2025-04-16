@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { Calendar } from "@/components/ui/calendar";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { Prayer } from "@shared/schema";
 import { es } from 'date-fns/locale';
-import { format } from 'date-fns';
+import { format, isAfter, startOfDay } from 'date-fns';
 import { CalendarRange, CalendarDays } from "lucide-react";
 
-export default function MonthlyCalendar() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  
+interface MonthlyCalendarProps {
+  selectedDate: Date;
+  onSelectDate: (date: Date) => void;
+}
+
+export default function MonthlyCalendar({ selectedDate, onSelectDate }: MonthlyCalendarProps) {
   const { data: prayers = [] } = useQuery<Prayer[]>({
     queryKey: ["/api/prayers"],
   });
@@ -22,6 +25,15 @@ export default function MonthlyCalendar() {
     const [year, month, day] = prayer.date.split('-');
     return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
   });
+  
+  // Disable future dates
+  const today = startOfDay(new Date());
+  const disabledDays = [
+    {
+      from: new Date(today.getTime() + 24 * 60 * 60 * 1000), // Tomorrow
+      to: new Date(2100, 0, 1), // Far future
+    },
+  ];
 
   return (
     <Card className="mb-6 border-primary/20 overflow-hidden">
@@ -35,7 +47,7 @@ export default function MonthlyCalendar() {
       <CardContent className="p-4">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-lg font-bold text-gray-900">
-            {format(date || new Date(), 'MMMM yyyy', { locale: es })}
+            {format(selectedDate, 'MMMM yyyy', { locale: es })}
           </h2>
           <div className="flex items-center text-sm text-gray-500">
             <CalendarDays className="h-4 w-4 mr-1 text-primary" />
@@ -45,8 +57,12 @@ export default function MonthlyCalendar() {
         
         <Calendar
           mode="single"
-          selected={date}
-          onSelect={setDate}
+          selected={selectedDate}
+          onSelect={(date) => {
+            if (date && !isAfter(date, today)) {
+              onSelectDate(date);
+            }
+          }}
           className="rounded-md mx-auto"
           locale={es}
           modifiers={{
@@ -56,6 +72,7 @@ export default function MonthlyCalendar() {
             today: "bg-primary/20 text-primary rounded-full font-bold",
             completed: "bg-primary text-white font-bold rounded-full"
           }}
+          disabled={disabledDays}
         />
       </CardContent>
     </Card>
