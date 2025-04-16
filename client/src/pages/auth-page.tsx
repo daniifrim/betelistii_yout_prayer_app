@@ -21,7 +21,7 @@ export default function AuthPage() {
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-bold">Betelistii Prayer Tracker</CardTitle>
               <CardDescription className="text-lg mt-2">
-                Inicia sesión para seguir tus oraciones y conectarte con tu comunidad
+                Inicia sesión para hacer un seguimiento tus oraciones para el grupo de tineri
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-8 p-8">
@@ -32,7 +32,7 @@ export default function AuthPage() {
                   className="w-32 h-32 opacity-80"
                 />
                 <p className="text-center text-gray-600">
-                  Registra tus oraciones diarias, ve tu progreso y mantente conectado con tu grupo juvenil
+                  Registra tus oraciones diarias, sigue tu progreso y revisa las estadísticas del grupo.
                 </p>
               </div>
               
@@ -88,11 +88,10 @@ export default function AuthPage() {
           </div>
           <h1 className="text-3xl font-bold mb-4">Betelistii Prayer Tracker</h1>
           <p className="text-lg mb-6">
-            Bienvenido a nuestra aplicación de seguimiento de oraciones. Registra tus oraciones diarias, 
-            observa tu progreso y mantente conectado con tu comunidad de oración.
+            Bienvenido a nuestra aplicación de seguimiento de oraciones. Registra tus oraciones diarias, sigue tu progreso y revisa las estadísticas del grupo.
           </p>
           <p className="text-lg">
-            Juntos, podemos apoyar a nuestro grupo juvenil a través de la oración consistente y la responsabilidad.
+            Juntos, podemos apoyar a nuestro grupo de tineri a través de la oración consistente, la responsabilidad y "darea de seamă"
           </p>
         </div>
       </div>
