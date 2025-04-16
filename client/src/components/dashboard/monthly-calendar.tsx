@@ -13,8 +13,11 @@ interface MonthlyCalendarProps {
 }
 
 export default function MonthlyCalendar({ selectedDate, onSelectDate }: MonthlyCalendarProps) {
+  // Refetching frequently to ensure consistent data
   const { data: prayers = [] } = useQuery<Prayer[]>({
     queryKey: ["/api/prayers"],
+    // Refresh data every 2 seconds to ensure calendar stays in sync with prayer card
+    refetchInterval: 2000,
   });
   
   // Filter completed prayers for highlighting dates
@@ -22,9 +25,14 @@ export default function MonthlyCalendar({ selectedDate, onSelectDate }: MonthlyC
   
   // Create an array of dates that have completed prayers
   const completedDates = completedPrayers.map(prayer => {
-    const [year, month, day] = prayer.date.split('-');
-    return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-  });
+    try {
+      const [year, month, day] = prayer.date.split('-');
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } catch (error) {
+      console.error("Error parsing date:", prayer.date);
+      return null;
+    }
+  }).filter(date => date !== null) as Date[];
   
   // Disable future dates
   const today = startOfDay(new Date());

@@ -28,7 +28,7 @@ export default function PrayerCard({ selectedDate }: PrayerCardProps) {
   // Use different endpoints based on selected date
   const queryKey = isTodaySelected 
     ? ["/api/prayers/today"] 
-    : ["/api/prayers/date", formattedDate];
+    : [`/api/prayers/date/${formattedDate}`];
   
   const { data: prayer, isLoading } = useQuery<PrayerData>({
     queryKey,
@@ -44,13 +44,23 @@ export default function PrayerCard({ selectedDate }: PrayerCardProps) {
       const res = await apiRequest("POST", endpoint, {});
       return await res.json();
     },
-    onSuccess: () => {
-      // Invalidate both current prayer and related data
-      queryClient.invalidateQueries({ queryKey });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats/me"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats/team"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/prayers"] });
+    onSuccess: (data) => {
+      // Immediate update for better UX
+      if (isTodaySelected) {
+        queryClient.setQueryData(["/api/prayers/today"], data);
+      } else {
+        queryClient.setQueryData([`/api/prayers/date/${formattedDate}`], data);
+      }
+      
+      // Force refetch all affected resources
+      queryClient.invalidateQueries({ queryKey: ["/api/prayers"], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ["/api/prayers/today"], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats/me"], refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats/team"], refetchType: 'all' });
     },
+    onError: (error) => {
+      console.error("Error toggling prayer:", error);
+    }
   });
   
   const handleTogglePrayer = () => {
