@@ -8,7 +8,14 @@ import { Loader2 } from "lucide-react";
 export default function TodaysPrayer() {
   const queryClient = useQueryClient();
   
-  const { data: todayPrayer, isLoading } = useQuery({
+  interface PrayerData {
+    id: number;
+    userId: number;
+    date: string;
+    completed: boolean;
+  }
+  
+  const { data: todayPrayer, isLoading } = useQuery<PrayerData>({
     queryKey: ["/api/prayers/today"],
   });
   
@@ -34,12 +41,12 @@ export default function TodaysPrayer() {
   return (
     <div className="bg-white shadow rounded-lg mb-8">
       <div className="px-4 py-5 sm:p-6">
-        <h3 className="text-lg leading-6 font-medium text-gray-900">Today's Prayer</h3>
+        <h3 className="text-lg leading-6 font-medium text-gray-900">Oración de Hoy</h3>
         <div className="mt-5">
           {isLoading ? (
             <div className="flex items-center space-x-2">
               <Loader2 className="h-5 w-5 animate-spin" />
-              <span>Loading...</span>
+              <span>Cargando...</span>
             </div>
           ) : (
             <Button
@@ -53,7 +60,7 @@ export default function TodaysPrayer() {
               ) : isCompleted ? (
                 <Check className="mr-2 h-4 w-4" />
               ) : null}
-              {isCompleted ? "Completed" : "Mark as Completed"}
+              {isCompleted ? "Completada" : "Marcar como Completada"}
             </Button>
           )}
         </div>

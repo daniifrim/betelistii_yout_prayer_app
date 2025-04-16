@@ -11,7 +11,7 @@ interface StatsProps {
 export default function QuickStats({ stats }: StatsProps) {
   return (
     <div className="mb-8">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Prayer Journey</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">Tu Camino de Oración</h2>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
@@ -22,7 +22,7 @@ export default function QuickStats({ stats }: StatsProps) {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    Prayer Streak
+                    Racha de Oración
                   </dt>
                   <dd className="flex items-baseline">
                     <div className="text-2xl font-semibold text-gray-900">
@@ -51,7 +51,7 @@ export default function QuickStats({ stats }: StatsProps) {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    This Month
+                    Este Mes
                   </dt>
                   <dd className="flex items-baseline">
                     <div className="text-2xl font-semibold text-gray-900">
@@ -80,7 +80,7 @@ export default function QuickStats({ stats }: StatsProps) {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    Total Prayers
+                    Total de Oraciones
                   </dt>
                   <dd>
                     <div className="text-2xl font-semibold text-gray-900">
