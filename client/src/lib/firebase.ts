@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut } from "firebase/auth";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -37,26 +37,55 @@ export const signInWithGoogle = async () => {
       prompt: 'select_account'
     });
     
-    const result = await signInWithPopup(auth, googleProvider);
-    console.log("Successfully signed in with Google:", result.user.displayName);
+    // Use redirect method instead of popup
+    await signInWithRedirect(auth, googleProvider);
+    
+    // This won't be reached immediately because the page will redirect
     return {
-      user: result.user,
-      success: true,
+      success: true
     };
   } catch (error: any) {
     console.error("Error signing in with Google", error);
+    console.error("Google sign-in error details:", error);
+    
     // Provide more detailed error information
-    let errorMessage = "Unknown error occurred";
-    if (error.code === 'auth/cancelled-popup-request') {
-      errorMessage = "Authentication cancelled by user";
-    } else if (error.code === 'auth/popup-blocked') {
-      errorMessage = "Popup was blocked by the browser";
-    } else if (error.code === 'auth/popup-closed-by-user') {
-      errorMessage = "Popup was closed before authentication completed";
-    } else if (error.code === 'auth/unauthorized-domain') {
+    let errorMessage = "Failed to start Google authentication";
+    
+    return {
+      user: null,
+      success: false,
+      error: {
+        code: error.code || 'unknown-error',
+        message: errorMessage
+      },
+    };
+  }
+};
+
+// This function needs to be called when the app loads to handle the redirect result
+export const handleAuthRedirect = async () => {
+  try {
+    const result = await getRedirectResult(auth);
+    
+    if (result) {
+      console.log("Successfully signed in with Google:", result.user.displayName);
+      return {
+        user: result.user,
+        success: true,
+      };
+    }
+    
+    return {
+      user: null,
+      success: true,
+      noRedirect: true
+    };
+  } catch (error: any) {
+    console.error("Error handling Google redirect", error);
+    
+    let errorMessage = "Failed to complete Google authentication";
+    if (error.code === 'auth/unauthorized-domain') {
       errorMessage = "The domain is not authorized for Google authentication in Firebase console";
-    } else if (error.code === 'auth/configuration-not-found') {
-      errorMessage = "Google sign-in is not properly configured. Please check Firebase console settings.";
     }
     
     return {
