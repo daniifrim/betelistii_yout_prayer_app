@@ -419,14 +419,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Update existing quote
           await storage.updateQuote(existingQuote.id, {
             text: quote.quote_es || quote.text,
-            author: "Betelistii",
+            text_en: quote.quote_en,
+            author: "Mark Batterson",
+            source: quote.source,
             dayOfYear: dayOfYear
           });
         } else {
           // Create new quote
           await storage.createQuote({
             text: quote.quote_es || quote.text,
-            author: "Betelistii",
+            text_en: quote.quote_en,
+            author: "Mark Batterson",
+            source: quote.source,
             dayOfYear: dayOfYear
           });
         }

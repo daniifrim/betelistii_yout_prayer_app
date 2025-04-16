@@ -32,8 +32,13 @@ export default function DailyQuote() {
         </p>
         <div className="text-right">
           {quote?.author && (
-            <p className="text-gray-500 text-sm italic">
+            <p className="text-gray-500 text-sm italic mb-1">
               — {quote.author}
+            </p>
+          )}
+          {quote?.source && (
+            <p className="text-gray-400 text-xs italic">
+              {quote.source}
             </p>
           )}
         </div>
