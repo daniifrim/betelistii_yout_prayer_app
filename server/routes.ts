@@ -3,8 +3,10 @@ import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
 import { z } from "zod";
-import { insertPrayerSchema } from "@shared/schema";
-import { format, startOfToday, subDays, parseISO, isValid } from "date-fns";
+import { insertPrayerSchema, insertQuoteSchema } from "@shared/schema";
+import { format, startOfToday, subDays, parseISO, isValid, getDayOfYear } from "date-fns";
+import { randomBytes, scrypt } from "crypto";
+import { promisify } from "util";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
@@ -221,7 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const topByPercentage = [...userStats].sort((a, b) => b.percentage - a.percentage);
     
     // Sort by streak for streak leaders
-    const topByStreak = [...userStats].sort((a, b) => b.streak - a.streak);
+    const topByStreak = [...userStats].sort((a, b) => (b.streak || 0) - (a.streak || 0));
     
     res.json({
       teamProgress: userStats,
@@ -303,6 +305,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } else {
       res.status(404).json({ message: "User not found" });
+    }
+  });
+
+  // Quotes routes
+  // Get today's quote
+  app.get("/api/quotes/today", async (req, res) => {
+    const today = new Date();
+    const dayOfYear = getDayOfYear(today);
+    
+    const quote = await storage.getQuoteByDayOfYear(dayOfYear);
+    
+    if (quote) {
+      res.json(quote);
+    } else {
+      // Return a default quote if none exists for today
+      res.json({ 
+        id: 0,
+        text: "Cada día es una nueva oportunidad para acercarse a Dios.",
+        author: "Betelistii",
+        dayOfYear: dayOfYear
+      });
+    }
+  });
+
+  // Admin quote management routes
+  app.get("/api/admin/quotes", ensureAdmin, async (req, res) => {
+    const quotes = await storage.getAllQuotes();
+    res.json(quotes);
+  });
+
+  app.post("/api/admin/quotes", ensureAdmin, async (req, res) => {
+    try {
+      const quote = insertQuoteSchema.parse(req.body);
+      
+      // Check if a quote already exists for this day of year
+      const existingQuote = await storage.getQuoteByDayOfYear(quote.dayOfYear);
+      if (existingQuote) {
+        return res.status(400).json({ 
+          message: "Ya existe una cita para este día del año" 
+        });
+      }
+      
+      const newQuote = await storage.createQuote(quote);
+      res.status(201).json(newQuote);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Datos de cita inválidos", 
+          errors: error.errors 
+        });
+      }
+      res.status(500).json({ message: "Error del servidor" });
+    }
+  });
+
+  app.patch("/api/admin/quotes/:id", ensureAdmin, async (req, res) => {
+    const quoteId = parseInt(req.params.id);
+    
+    // If updating dayOfYear, check if it's not already used
+    if (req.body.dayOfYear) {
+      const existingQuote = await storage.getQuoteByDayOfYear(req.body.dayOfYear);
+      if (existingQuote && existingQuote.id !== quoteId) {
+        return res.status(400).json({ 
+          message: "Ya existe una cita para este día del año" 
+        });
+      }
+    }
+    
+    const updatedQuote = await storage.updateQuote(quoteId, req.body);
+    if (updatedQuote) {
+      res.json(updatedQuote);
+    } else {
+      res.status(404).json({ message: "Cita no encontrada" });
+    }
+  });
+
+  app.delete("/api/admin/quotes/:id", ensureAdmin, async (req, res) => {
+    const quoteId = parseInt(req.params.id);
+    const success = await storage.deleteQuote(quoteId);
+    
+    if (success) {
+      res.status(204).send();
+    } else {
+      res.status(404).json({ message: "Cita no encontrada" });
     }
   });
 
