@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, Calendar, BarChart3, Settings } from "lucide-react";
+import { Home, Users, UserCog, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function MobileNavbar() {
@@ -8,23 +8,14 @@ export default function MobileNavbar() {
   
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 sm:hidden">
-      <div className="grid grid-cols-4 h-16">
+      <div className="grid grid-cols-3 h-16">
         <Link href="/"
           className={`flex flex-col items-center justify-center space-y-1 ${
             location === "/" ? "text-primary" : "text-gray-500"
           }`}
         >
           <Home className="h-5 w-5" />
-          <span className="text-xs">Inicio</span>
-        </Link>
-        
-        <Link href="/prayers"
-          className={`flex flex-col items-center justify-center space-y-1 ${
-            location === "/prayers" ? "text-primary" : "text-gray-500"
-          }`}
-        >
-          <Calendar className="h-5 w-5" />
-          <span className="text-xs">Oraciones</span>
+          <span className="text-xs">Personal</span>
         </Link>
         
         <Link href="/stats"
@@ -32,11 +23,11 @@ export default function MobileNavbar() {
             location === "/stats" ? "text-primary" : "text-gray-500"
           }`}
         >
-          <BarChart3 className="h-5 w-5" />
-          <span className="text-xs">Estadísticas</span>
+          <Users className="h-5 w-5" />
+          <span className="text-xs">Grupo</span>
         </Link>
         
-        {user?.isAdmin && (
+        {user?.isAdmin ? (
           <Link href="/admin"
             className={`flex flex-col items-center justify-center space-y-1 ${
               location === "/admin" ? "text-primary" : "text-gray-500"
@@ -45,11 +36,9 @@ export default function MobileNavbar() {
             <Settings className="h-5 w-5" />
             <span className="text-xs">Admin</span>
           </Link>
-        )}
-        
-        {!user?.isAdmin && (
-          <div className="flex flex-col items-center justify-center space-y-1 text-gray-300">
-            <Settings className="h-5 w-5" />
+        ) : (
+          <div className="flex flex-col items-center justify-center space-y-1 text-gray-500">
+            <UserCog className="h-5 w-5" />
             <span className="text-xs">Perfil</span>
           </div>
         )}
