@@ -154,15 +154,30 @@ export function setupAuth(app: Express) {
           name: displayName || username,
           password: hashedPassword,
           firebaseUid: uid,
+          photoURL: photoURL,
           isAdmin: false
         });
         
         console.log(`New user created: ${user.username} (ID: ${user.id})`);
       } else {
         console.log(`Existing user found: ${user.username} (ID: ${user.id})`);
+        
+        // Update user's photo URL if it has changed
+        if (photoURL && (!user.photoURL || user.photoURL !== photoURL)) {
+          console.log(`Updating photo URL for user ${user.username}`);
+          const updatedUser = await storage.updateUser(user.id, { photoURL });
+          if (updatedUser) {
+            user = updatedUser;
+          }
+        }
       }
 
-      // Log the user in
+      // Log the user in only if we have a valid user
+      if (!user) {
+        console.error("No valid user found for login");
+        return res.status(400).json({ message: "Invalid user data" });
+      }
+      
       req.login(user, (err) => {
         if (err) {
           console.error("Login error:", err);

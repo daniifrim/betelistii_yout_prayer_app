@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
 import { LogOut } from "lucide-react";
 import { Link } from "wouter";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -83,6 +83,9 @@ export default function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative rounded-full">
                     <Avatar className="h-8 w-8 bg-primary text-white">
+                      {user?.photoURL ? (
+                        <AvatarImage src={user.photoURL} alt={user.name} />
+                      ) : null}
                       <AvatarFallback>{user ? getInitials(user.name) : '?'}</AvatarFallback>
                     </Avatar>
                   </Button>
