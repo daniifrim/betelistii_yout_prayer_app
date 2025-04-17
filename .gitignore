@@ -11,6 +11,7 @@ node_modules/
 # Build files
 dist/
 build/
+server/public
 
 # Logs
 logs
@@ -41,4 +42,8 @@ jspm_packages/
 
 # Database files
 *.db
-*.sqlite 
+*.sqlite
+
+# Version control files
+vite.config.ts.*
+*.tar.gz
