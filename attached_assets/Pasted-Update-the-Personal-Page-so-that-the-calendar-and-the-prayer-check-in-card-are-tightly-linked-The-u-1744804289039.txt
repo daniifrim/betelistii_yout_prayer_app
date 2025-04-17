@@ -1,0 +1,70 @@
+Update the Personal Page so that the calendar and the prayer check-in card are tightly linked. The user must be able to view and change their prayer status for any selected date (past or present), not just today.
+
+Personal Page – Calendar & Check-In Card Logic
+1. Layout (Vertical Order)
+A. Calendar (Top)
+
+B. Prayer Check-In Card (Below Calendar)
+
+C. Inspirational Quote (Below Check-In Card)
+
+D. Statistics Section (Bottom)
+
+2. Calendar & Check-In Card Interaction
+The calendar displays the current month, with each day selectable.
+
+When a user selects a date on the calendar (today or any previous day), the prayer check-in card below updates to reflect the prayer status for that specific date.
+
+If the selected date is today:
+
+The card says: “¿Has orado hoy?” (“Did you pray today?”)
+
+Shows a button: “Marcar como orado” (“Mark as prayed”) if not already marked.
+
+If already marked, show a confirmation (“¡Gracias por tu oración hoy!”) and an option to “Desmarcar oración” (“Unmark prayer”).
+
+If the selected date is a previous day:
+
+The card updates to: “¿Oraste el [fecha]?” (“Did you pray on [date]?”)
+
+If not marked, show: “Marcar como orado”.
+
+If already marked, show: “¡Gracias por tu oración este día!” and an option to unmark.
+
+If the selected date is in the future:
+
+The card should be disabled or show a message: “No puedes registrar oración para una fecha futura.” (“You cannot log prayer for a future date.”)
+
+3. Marking/Unmarking Logic
+User can mark or unmark prayer for any past or present date via the card.
+
+When a prayer is marked, the corresponding day on the calendar turns green.
+
+When unmarked, it returns to the default color.
+
+Statistics update automatically based on the current state of the calendar.
+
+4. Additional Notes
+All labels and messages in Spanish.
+
+Ensure the card and calendar are visually and functionally connected.
+
+Prevent marking/unmarking for future dates.
+
+Maintain all previous design and spacing guidelines.
+
+Example User Flow
+User opens the Personal Page.
+
+The calendar shows the current month; today is highlighted.
+
+The user selects a date (today or any previous day).
+
+The check-in card updates to show the prayer status for that date, allowing the user to mark/unmark prayer as needed.
+
+The calendar and statistics update in real time.
+
+Summary:
+Make sure the prayer check-in card always reflects the status of the currently selected date on the calendar, allowing users to mark or unmark their prayer for that day (except for future dates).
+
+Let me know if you want this translated into Spanish or if you need a wireframe/mockup description!
