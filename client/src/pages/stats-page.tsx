@@ -38,11 +38,11 @@ export default function StatsPage() {
         <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 mb-6">
             <Users className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-bold text-gray-900">Grupo Betelistii</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Bazele Lucrării 1.0</h1>
           </div>
           
           <p className="text-gray-600 mb-8">
-            Progreso de todos los miembros de nuestro grupo. Unidos en oración.
+            Consulta el progreso de todos los miembros de tu grupo de oración.
           </p>
           
           {isLoading ? (
